@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JamStep - Testnet</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --primary: #001a33;
+            --accent: #00ffff;
+            --neon-glow: 0 0 15px #00ffcc;
+            --dark: #121212;
+            --light: #f0f0f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #000428, #004e92);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 450px;
+            width: 100%;
+        }
+        
+        /* Welcome Screen Styles */
+        .welcome-screen {
+            background: rgba(0, 10, 30, 0.85);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--neon-glow);
+            backdrop-filter: blur(10px);
+        }
+        
+        .app-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .app-logo::before {
+            content: 'JAMSTEP';
+            font-weight: bold;
+            color: white;
+            text-shadow: var(--neon-glow);
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+        
+        h1 {
+            color: var(--accent);
+            text-shadow: var(--neon-glow);
+            font-size: 28px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .testnet-badge {
+            display: inline-block;
+            background: rgba(0, 100, 255, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 15px;
+            padding: 5px 15px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .welcome-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .stats {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: var(--neon-glow);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 300px;
+            margin-top: 10px;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
+        }
+        
+        /* Main App Styles */
+        .main-app {
+            display: none;
+            background: rgba(0, 10, 30, 0.85);
+            border: 2px solid var(--accent);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--neon-glow);
+            backdrop-filter: blur(10px);
+        }
+        
+        .app-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+        }
+        
+        .app-title {
+            color: var(--accent);
+            text-shadow: var(--neon-glow);
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+        
+        .stats-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            margin: 0 5px;
+            text-align: center;
+            background: rgba(0, 30, 60, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            text-shadow: var(--neon-glow);
+        }
+        
+        .progress-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            height: 25px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.8s;
+            position: relative;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 2s infinite;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .stamina-container {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            gap: 8px;
+        }
+        
+        .stamina-item {
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 255, 204, 0.3);
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .stamina-item.active {
+            background: var(--accent);
+            box-shadow: var(--neon-glow);
+        }
+        
+        .step-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .step-button {
+            background: linear-gradient(135deg, var(--primary), #003366);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+        
+        .step-button.available {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+        
+        .step-button.available:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+        }
+        
+        .step-button.locked {
+            background: rgba(50, 50, 50, 0.5);
+            color: #888;
+            cursor: not-allowed;
+        }
+        
+        .step-value {
+            font-size: 20px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .step-label {
+            display: block;
+            font-size: 14px;
+        }
+        
+        .timer {
+            display: block;
+            font-size: 12px;
+            margin-top: 5px;
+            color: var(--accent);
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-button {
+            flex: 1;
+            background: rgba(0, 50, 100, 0.5);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-button:hover {
+            background: rgba(0, 100, 200, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 15px;
+            max-width: 90%;
+            z-index: 1000;
+            text-align: center;
+            box-shadow: var(--neon-glow);
+            display: none;
+            width: 90%;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 204, 0.6); }
+            100% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="app-logo pulse"></div>
+            <h1>JAMSTEP</h1>
+            <div class="testnet-badge">TESTNET VERSION</div>
+            
+            <p class="welcome-text">
+                Earn JAMP tokens with every step you take. 
+                Move more, earn more in our revolutionary move-to-earn ecosystem!
+            </p>
+            
+            <div class="stats">
+                <span>👥 12,459 active users</span>
+            </div>
+            
+            <button class="start-btn" onclick="startApp()">START EARNING</button>
+        </div>
+        
+        <!-- Main Application -->
+        <div class="main-app" id="mainApp">
+            <div class="app-header">
+                <div class="app-title">JAMSTEP</div>
+                <div class="testnet-badge">TESTNET VERSION</div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-row">
+                    <div class="stat-card">
+                        <div class="stat-label">TODAY'S STEPS</div>
+                        <div class="stat-value" id="stepsCounter">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">JAMP EARNED</div>
+                        <div class="stat-value" id="jampCounter">0.0000</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                
+                <div class="stamina-container" id="staminaContainer">
+                    <!-- Stamina items will be added here -->
+                </div>
+            </div>
+            
+            <div class="step-buttons" id="stepButtons">
+                <!-- Step buttons will be added here -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-button" id="profileBtn">👤 PROFILE</button>
+                <button class="action-button" id="referralBtn">👥 REFERRALS</button>
+                <button class="action-button" id="supportBtn">🛠 SUPPORT</button>
+            </div>
+        </div>
+        
+        <!-- Notification -->
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <script>
+        // Telegram Web App initialization
+        const tg = window.Telegram.WebApp;
+        
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const mainApp = document.getElementById('mainApp');
+        const stepsCounter = document.getElementById('stepsCounter');
+        const jampCounter = document.getElementById('jampCounter');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const staminaContainer = document.getElementById('staminaContainer');
+        const stepButtonsContainer = document.getElementById('stepButtons');
+        const notification = document.getElementById('notification');
+        const profileBtn = document.getElementById('profileBtn');
+        const referralBtn = document.getElementById('referralBtn');
+        const supportBtn = document.getElementById('supportBtn');
+        
+        // App State
+        let userData = {
+            userId: null,
+            username: "Guest",
+            stepsToday: 0,
+            totalJamp: 0.0,
+            stamina: 5,
+            maxStamina: 5,
+            stepButtons: [
+                { value: 500, unlock: 0, available: true },
+                { value: 1000, unlock: 900, available: false },
+                { value: 5000, unlock: 2700, available: false },
+                { value: 10000, unlock: 5400, available: false }
+            ]
+        };
+        
+        // Initialize the app
+        function initApp() {
+            tg.expand();
+            tg.enableClosingConfirmation();
+            
+            // Get user info from Telegram
+            if (tg.initDataUnsafe.user) {
+                userData.userId = tg.initDataUnsafe.user.id;
+                userData.username = tg.initDataUnsafe.user.username || 
+                                  `${tg.initDataUnsafe.user.first_name}${tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : ''}`;
+            }
+            
+            // Show welcome screen
+            welcomeScreen.style.display = 'block';
+            mainApp.style.display = 'none';
+        }
+        
+        // Start the main application
+        function startApp() {
+            welcomeScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            updateUI();
+            
+            // Start timers for unlocking buttons
+            startUnlockTimers();
+        }
+        
+        // Update the UI with current data
+        function updateUI() {
+            // Update stats
+            stepsCounter.textContent = userData.stepsToday;
+            jampCounter.textContent = userData.totalJamp.toFixed(4);
+            
+            // Update progress
+            const progress = Math.min((userData.stepsToday / 10000) * 100, 100);
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+            
+            // Update stamina
+            updateStaminaUI();
+            
+            // Update step buttons
+            updateStepButtons();
+        }
+        
+        // Update stamina display
+        function updateStaminaUI() {
+            staminaContainer.innerHTML = '';
+            for (let i = 0; i < userData.maxStamina; i++) {
+                const staminaItem = document.createElement('div');
+                staminaItem.className = `stamina-item ${i < userData.stamina ? 'active' : ''}`;
+                staminaContainer.appendChild(staminaItem);
+            }
+        }
+        
+        // Update step buttons
+        function updateStepButtons() {
+            stepButtonsContainer.innerHTML = '';
+            
+            userData.stepButtons.forEach(button => {
+                const buttonEl = document.createElement('button');
+                buttonEl.className = `step-button ${button.available ? 'available' : 'locked'}`;
+                
+                buttonEl.innerHTML = `
+                    <span class="step-value">${button.value}</span>
+                    <span class="step-label">STEPS</span>
+                    ${button.available ? '' : `<span class="timer">Unlocks in: ${formatTime(button.unlock)}</span>`}
+                `;
+                
+                if (button.available) {
+                    buttonEl.addEventListener('click', () => submitSteps(button.value));
+                }
+                
+                stepButtonsContainer.appendChild(buttonEl);
+            });
+        }
+        
+        // Start timers for unlocking buttons
+        function startUnlockTimers() {
+            userData.stepButtons.forEach(button => {
+                if (!button.available && button.unlock > 0) {
+                    const timer = setInterval(() => {
+                        button.unlock--;
+                        
+                        if (button.unlock <= 0) {
+                            clearInterval(timer);
+                            button.available = true;
+                            updateStepButtons();
+                        } else {
+                            const timerEl = stepButtonsContainer.querySelector(`.step-button.locked .timer`);
+                            if (timerEl) {
+                                timerEl.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
+                            }
+                        }
+                    }, 1000);
+                }
+            });
+        }
+        
+        // Format time (seconds to HH:MM:SS)
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Submit steps
+        function submitSteps(steps) {
+            // Check stamina
+            if (userData.stamina <= 0) {
+                showNotification("You don't have enough stamina! Wait for recovery.", "warning");
+                return;
+            }
+            
+            // Check daily limit
+            if (userData.stepsToday + steps > 10000) {
+                const allowed = 10000 - userData.stepsToday;
+                showNotification(`Daily limit exceeded! You can only add ${allowed} more steps today.`, "warning");
+                return;
+            }
+            
+            // Anti-cheat protection for 10,000 steps
+            if (steps === 10000 && !userData.stepButtons[3].available) {
+                showNotification("You tried to submit steps too quickly! 30-min ban applied.", "error");
+                return;
+            }
+            
+            // Calculate JAMP reward (0.05 JAMP per 1000 steps)
+            const jampEarned = steps * 0.00005;
+            
+            // Update user data
+            userData.stepsToday += steps;
+            userData.totalJamp += jampEarned;
+            userData.stamina -= 1;
+            
+            // Show success message
+            showNotification(`✅ ${steps} steps submitted! Earned ${jampEarned.toFixed(4)} JAMP`, "success");
+            
+            // Update UI
+            updateUI();
+        }
+        
+        // Show notification
+        function showNotification(message, type = "info") {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            // Set notification color based on type
+            if (type === "error") {
+                notification.style.backgroundColor = 'rgba(255, 50, 50, 0.8)';
+                notification.style.borderColor = '#ff0000';
+            } else if (type === "success") {
+                notification.style.backgroundColor = 'rgba(50, 200, 50, 0.8)';
+                notification.style.borderColor = '#00ff00';
+            } else if (type === "warning") {
+                notification.style.backgroundColor = 'rgba(255, 200, 50, 0.8)';
+                notification.style.borderColor = '#ffff00';
+            } else {
+                notification.style.backgroundColor = 'rgba(50, 50, 200, 0.8)';
+                notification.style.borderColor = '#0000ff';
+            }
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Button event listeners
+        profileBtn.addEventListener('click', () => {
+            showNotification("Profile page is in development", "info");
+        });
+        
+        referralBtn.addEventListener('click', () => {
+            showNotification("Referral system is in development", "info");
+        });
+        
+        supportBtn.addEventListener('click', () => {
+            tg.openTelegramLink("https://t.me/JamMav");
+        });
+        
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
