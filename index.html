@@ -93,14 +93,6 @@
             margin-bottom: 25px;
         }
         
-        .stats {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 12px;
-            margin: 20px 0;
-            font-size: 14px;
-        }
-        
         .start-btn {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
@@ -278,6 +270,12 @@
             cursor: not-allowed;
         }
         
+        .step-button.disabled {
+            background: rgba(100, 50, 50, 0.5);
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        
         .step-value {
             font-size: 20px;
             font-weight: bold;
@@ -339,6 +337,16 @@
             width: 90%;
         }
         
+        .feature-info {
+            background: rgba(0, 50, 100, 0.3);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
         @keyframes shine {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
@@ -367,10 +375,6 @@
                 Earn JAMP tokens with every step you take. 
                 Move more, earn more in our revolutionary move-to-earn ecosystem!
             </p>
-            
-            <div class="stats">
-                <span>👥 12,459 active users</span>
-            </div>
             
             <button class="start-btn" onclick="startApp()">START EARNING</button>
         </div>
@@ -413,6 +417,10 @@
                 <button class="action-button" id="referralBtn">👥 REFERRALS</button>
                 <button class="action-button" id="supportBtn">🛠 SUPPORT</button>
             </div>
+            
+            <div class="feature-info">
+                <p>PROFILE and REFERRALS features are coming soon in the next update!</p>
+            </div>
         </div>
         
         <!-- Notification -->
@@ -446,10 +454,34 @@
             stamina: 5,
             maxStamina: 5,
             stepButtons: [
-                { value: 500, unlock: 0, available: true },
-                { value: 1000, unlock: 900, available: false },
-                { value: 5000, unlock: 2700, available: false },
-                { value: 10000, unlock: 5400, available: false }
+                { 
+                    value: 500, 
+                    unlock: 0, 
+                    available: true,
+                    maxUses: 2,  // Максимум 2 нажатия
+                    uses: 0      // Счётчик использований
+                },
+                { 
+                    value: 1000, 
+                    unlock: 900, 
+                    available: false,
+                    maxUses: 5,
+                    uses: 0
+                },
+                { 
+                    value: 5000, 
+                    unlock: 2700, 
+                    available: false,
+                    maxUses: 5,
+                    uses: 0
+                },
+                { 
+                    value: 10000, 
+                    unlock: 5400, 
+                    available: false,
+                    maxUses: 1,  // Можно нажимать только 1 раз
+                    uses: 0
+                }
             ]
         };
         
@@ -516,14 +548,20 @@
                 const buttonEl = document.createElement('button');
                 buttonEl.className = `step-button ${button.available ? 'available' : 'locked'}`;
                 
+                // Добавляем класс disabled, если кнопка достигла лимита
+                if (button.uses >= button.maxUses) {
+                    buttonEl.classList.add('disabled');
+                }
+                
                 buttonEl.innerHTML = `
                     <span class="step-value">${button.value}</span>
                     <span class="step-label">STEPS</span>
                     ${button.available ? '' : `<span class="timer">Unlocks in: ${formatTime(button.unlock)}</span>`}
+                    ${button.uses >= button.maxUses ? '<span class="timer">MAX USED</span>' : ''}
                 `;
                 
-                if (button.available) {
-                    buttonEl.addEventListener('click', () => submitSteps(button.value));
+                if (button.available && button.uses < button.maxUses) {
+                    buttonEl.addEventListener('click', () => submitSteps(button));
                 }
                 
                 stepButtonsContainer.appendChild(buttonEl);
@@ -542,9 +580,9 @@
                             button.available = true;
                             updateStepButtons();
                         } else {
-                            const timerEl = stepButtonsContainer.querySelector(`.step-button.locked .timer`);
-                            if (timerEl) {
-                                timerEl.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
+                            const buttonEl = stepButtonsContainer.querySelector(`.step-button.locked .timer`);
+                            if (buttonEl) {
+                                buttonEl.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
                             }
                         }
                     }, 1000);
@@ -562,7 +600,13 @@
         }
         
         // Submit steps
-        function submitSteps(steps) {
+        function submitSteps(button) {
+            // Check if button has reached max uses
+            if (button.uses >= button.maxUses) {
+                showNotification(`You can only use ${button.value} steps button ${button.maxUses} times per day`, "warning");
+                return;
+            }
+            
             // Check stamina
             if (userData.stamina <= 0) {
                 showNotification("You don't have enough stamina! Wait for recovery.", "warning");
@@ -570,28 +614,29 @@
             }
             
             // Check daily limit
-            if (userData.stepsToday + steps > 10000) {
+            if (userData.stepsToday + button.value > 10000) {
                 const allowed = 10000 - userData.stepsToday;
                 showNotification(`Daily limit exceeded! You can only add ${allowed} more steps today.`, "warning");
                 return;
             }
             
             // Anti-cheat protection for 10,000 steps
-            if (steps === 10000 && !userData.stepButtons[3].available) {
+            if (button.value === 10000 && !button.available) {
                 showNotification("You tried to submit steps too quickly! 30-min ban applied.", "error");
                 return;
             }
             
             // Calculate JAMP reward (0.05 JAMP per 1000 steps)
-            const jampEarned = steps * 0.00005;
+            const jampEarned = button.value * 0.00005;
             
             // Update user data
-            userData.stepsToday += steps;
+            userData.stepsToday += button.value;
             userData.totalJamp += jampEarned;
             userData.stamina -= 1;
+            button.uses += 1;
             
             // Show success message
-            showNotification(`✅ ${steps} steps submitted! Earned ${jampEarned.toFixed(4)} JAMP`, "success");
+            showNotification(`✅ ${button.value} steps submitted! Earned ${jampEarned.toFixed(4)} JAMP`, "success");
             
             // Update UI
             updateUI();
