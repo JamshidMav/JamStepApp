@@ -607,27 +607,28 @@
                 },
                 { 
                     value: 1000, 
-                    unlock: 900, 
+                    unlock: 3600,  // 1 hour = 3600 seconds
                     available: false,
                     maxUses: 1,
                     uses: 0
                 },
                 { 
                     value: 5000, 
-                    unlock: 2700, 
+                    unlock: 10800, // 3 hours = 10800 seconds
                     available: false,
                     maxUses: 1,
                     uses: 0
                 },
                 { 
                     value: 10000, 
-                    unlock: 5400, 
+                    unlock: 21600, // 6 hours = 21600 seconds
                     available: false,
                     maxUses: 1,
                     uses: 0
                 }
             ],
-            lastUpdate: null
+            lastUpdate: null,
+            referralBonusClaimed: false
         };
         
         // Initialize the app
@@ -644,7 +645,7 @@
             
             // Generate referral code if doesn't exist
             if (!userData.referralCode) {
-                userData.referralCode = 'JAM-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                userData.referralCode = generateReferralCode();
             }
             
             // Load saved data
@@ -658,6 +659,16 @@
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
             referralScreen.style.display = 'none';
+        }
+        
+        // Generate referral code
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 8; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return 'JAM-' + result;
         }
         
         // Load user data from localStorage
@@ -711,17 +722,32 @@
         
         // Process referral from URL
         function processReferral() {
-            const startParam = tg.initDataUnsafe.start_param;
-            if (startParam && startParam.startsWith('ref-')) {
-                const referrerCode = startParam.split('ref-')[1];
-                
-                // In a real app, you would validate and credit the referrer here
-                // For demo, we'll just show a notification
-                showNotification(`🎉 Referral applied! You received 0.05 JAMP bonus!`, "success");
-                userData.totalJamp += 0.05;
-                
-                // Save updated data
-                saveUserData();
+            // Get referral code from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            
+            if (refCode && !userData.referralBonusClaimed) {
+                // Check if this is a valid referral
+                const referrerData = localStorage.getItem(`referrer_${refCode}`);
+                if (referrerData) {
+                    // Add bonus to new user
+                    userData.totalJamp += 0.05;
+                    
+                    // Add bonus to referrer
+                    const referrer = JSON.parse(referrerData);
+                    referrer.referrals += 1;
+                    referrer.totalJamp += 0.05;
+                    localStorage.setItem(`referrer_${refCode}`, JSON.stringify(referrer));
+                    
+                    // Mark bonus as claimed
+                    userData.referralBonusClaimed = true;
+                    
+                    // Show notification
+                    showNotification("🎉 You received 0.05 JAMP for joining via referral!", "success");
+                    
+                    // Save data
+                    saveUserData();
+                }
             }
         }
         
@@ -782,8 +808,15 @@
         
         // Update referral screen
         function updateReferralScreen() {
+            // Save referrer data
+            localStorage.setItem(`referrer_${userData.referralCode}`, JSON.stringify({
+                referrals: userData.referrals,
+                totalJamp: userData.totalJamp
+            }));
+            
+            // Update display
             currentReferrals.textContent = `${userData.referrals}/${userData.maxReferrals}`;
-            referralLink.textContent = `https://t.me/YOUR_BOT?start=ref-${userData.referralCode}`;
+            referralLink.textContent = `https://t.me/JamStep_bot?start=ref_${userData.referralCode}`;
         }
         
         // Update stamina display
@@ -866,26 +899,31 @@
                 return;
             }
             
-            // Check daily limit
-            if (userData.stepsToday + button.value > 10000) {
-                const allowed = 10000 - userData.stepsToday;
-                showNotification(`Daily limit exceeded! You can only add ${allowed} more steps today.`, "warning");
+            // Calculate how many steps we can add without exceeding 10,000
+            const remainingSteps = 10000 - userData.stepsToday;
+            if (remainingSteps <= 0) {
+                showNotification("You've reached the daily step limit of 10,000 steps!", "warning");
                 return;
             }
+            
+            // How many steps we can actually add (not more than remaining)
+            const stepsToAdd = Math.min(button.value, remainingSteps);
             
             // Anti-cheat protection for 10,000 steps
             if (button.value === 10000 && !button.available) {
                 showNotification("You tried to submit steps too quickly! 30-min ban applied.", "error");
                 button.unlock = 1800; // 30 minutes
                 button.available = false;
+                saveUserData();
+                updateStepButtons();
                 return;
             }
             
             // Calculate JAMP reward (0.05 JAMP per 1000 steps)
-            const jampEarned = button.value * 0.00005;
+            const jampEarned = stepsToAdd * 0.00005;
             
             // Update user data
-            userData.stepsToday += button.value;
+            userData.stepsToday += stepsToAdd;
             userData.totalJamp += jampEarned;
             userData.stamina -= 1;
             button.uses += 1;
@@ -894,7 +932,7 @@
             saveUserData();
             
             // Show success message
-            showNotification(`✅ ${button.value} steps submitted! Earned ${jampEarned.toFixed(4)} JAMP`, "success");
+            showNotification(`✅ ${stepsToAdd} steps submitted! Earned ${jampEarned.toFixed(4)} JAMP`, "success");
             
             // Update UI
             updateUI();
@@ -902,7 +940,7 @@
         
         // Copy referral link to clipboard
         function copyReferralLink() {
-            const link = `https://t.me/YOUR_BOT?start=ref-${userData.referralCode}`;
+            const link = `https://t.me/JamStep_bot?start=ref_${userData.referralCode}`;
             navigator.clipboard.writeText(link)
                 .then(() => {
                     showNotification("Referral link copied to clipboard!", "success");
