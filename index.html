@@ -107,6 +107,10 @@
             width: 100%;
             max-width: 300px;
             margin-top: 10px;
+            /* Фикс для правильного отображения текста */
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
         }
         
         .start-btn:hover {
@@ -652,6 +656,10 @@
                 userData.userId = tg.initDataUnsafe.user.id;
                 userData.username = tg.initDataUnsafe.user.username || 
                                   `${tg.initDataUnsafe.user.first_name}${tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : ''}`;
+            } else {
+                // Fallback for testing outside Telegram
+                userData.userId = Date.now();
+                userData.username = "TestUser";
             }
             
             // Generate referral code if doesn't exist
