@@ -107,10 +107,8 @@
             width: 100%;
             max-width: 300px;
             margin-top: 10px;
-            /* Фикс для правильного отображения текста */
             display: inline-block;
             text-align: center;
-            text-decoration: none;
         }
         
         .start-btn:hover {
@@ -447,6 +445,7 @@
         <!-- Main Application -->
         <div class="main-app" id="mainApp">
             <div class="app-header">
+                <button class="back-btn" onclick="showScreen('mainApp')">←</button>
                 <div class="app-title">JAMSTEP</div>
                 <div class="testnet-badge">TESTNET VERSION</div>
             </div>
@@ -589,15 +588,16 @@
         const currentReferrals = document.getElementById('currentReferrals');
         const referralLink = document.getElementById('referralLink');
         
-        // Настройки приложения
-        const BOT_USERNAME = "JamStep_bot"; // ЗАМЕНИТЕ НА ИМЯ ВАШЕГО БОТА
+        // App Configuration - CHANGE THIS!
+        const BOT_USERNAME = "JamStep_bot"; // REPLACE WITH YOUR BOT USERNAME
+        const SUPPORT_USERNAME = "JamMav"; // REPLACE WITH YOUR SUPPORT USERNAME
         
-        // Награды за шаги
+        // Reward rates
         const REWARD_RATES = {
-            500: 0.015,   // 0.015 JAMP за 500 шагов
-            1000: 0.03,   // 0.03 JAMP за 1000 шагов
-            5000: 0.15,   // 0.15 JAMP за 5000 шагов
-            10000: 0.3    // 0.3 JAMP за 10000 шагов
+            500: 0.015,   // 0.015 JAMP for 500 steps
+            1000: 0.03,   // 0.03 JAMP for 1000 steps
+            5000: 0.15,   // 0.15 JAMP for 5000 steps
+            10000: 0.3    // 0.3 JAMP for 10000 steps
         };
         
         // App State
@@ -656,10 +656,6 @@
                 userData.userId = tg.initDataUnsafe.user.id;
                 userData.username = tg.initDataUnsafe.user.username || 
                                   `${tg.initDataUnsafe.user.first_name}${tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : ''}`;
-            } else {
-                // Fallback for testing outside Telegram
-                userData.userId = Date.now();
-                userData.username = "TestUser";
             }
             
             // Generate referral code if doesn't exist
@@ -673,11 +669,32 @@
             // Process referral if any
             processReferral();
             
+            // Process commands
+            processCommands();
+            
             // Show welcome screen
             welcomeScreen.style.display = 'block';
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
             referralScreen.style.display = 'none';
+        }
+        
+        // Process bot commands
+        function processCommands() {
+            // Check if we have a command parameter
+            if (tg.initDataUnsafe.start_param) {
+                const param = tg.initDataUnsafe.start_param;
+                
+                if (param === "invite_command") {
+                    // User clicked /invite
+                    startApp();
+                    setTimeout(() => showScreen('referralScreen'), 300);
+                }
+                else if (param.startsWith('ref_')) {
+                    // User came from referral link
+                    // Bonus will be processed in processReferral()
+                }
+            }
         }
         
         // Generate referral code
@@ -1016,7 +1033,7 @@
         });
         
         supportBtn.addEventListener('click', () => {
-            tg.openTelegramLink("https://t.me/JamMav");
+            tg.openTelegramLink(`https://t.me/${SUPPORT_USERNAME}`);
         });
         
         // Initialize the app when page loads
