@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JamStep - Move to Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚶‍♂️</text></svg>">
     <style>
         :root {
             --primary: #001a33;
@@ -12,6 +13,10 @@
             --neon-glow: 0 0 15px #00ffcc;
             --dark: #121212;
             --light: #f0f0f0;
+            --success: #00cc66;
+            --warning: #ffcc00;
+            --error: #ff3333;
+            --info: #3399ff;
         }
         
         * {
@@ -29,11 +34,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow-x: hidden;
         }
         
         .container {
             max-width: 450px;
             width: 100%;
+            position: relative;
         }
         
         /* Welcome Screen Styles */
@@ -45,6 +52,7 @@
             text-align: center;
             box-shadow: var(--neon-glow);
             backdrop-filter: blur(10px);
+            animation: fadeIn 0.8s ease-out;
         }
         
         .app-logo {
@@ -57,6 +65,7 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            animation: pulse 2s infinite;
         }
         
         .app-logo::before {
@@ -85,6 +94,7 @@
             padding: 5px 15px;
             margin: 15px 0;
             font-size: 14px;
+            animation: glow 1.5s infinite alternate;
         }
         
         .welcome-text {
@@ -109,6 +119,20 @@
             margin-top: 10px;
             display: inline-block;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20px;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(25deg);
+            transition: all 0.5s;
         }
         
         .start-btn:hover {
@@ -116,8 +140,12 @@
             box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
         }
         
+        .start-btn:hover::after {
+            left: 120%;
+        }
+        
         /* Main App Styles */
-        .main-app {
+        .app-screen {
             display: none;
             background: rgba(0, 10, 30, 0.85);
             border: 2px solid var(--accent);
@@ -125,28 +153,7 @@
             padding: 20px;
             box-shadow: var(--neon-glow);
             backdrop-filter: blur(10px);
-        }
-        
-        /* Profile Screen Styles */
-        .profile-screen {
-            display: none;
-            background: rgba(0, 10, 30, 0.85);
-            border: 2px solid var(--accent);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: var(--neon-glow);
-            backdrop-filter: blur(10px);
-        }
-        
-        /* Referral Screen Styles */
-        .referral-screen {
-            display: none;
-            background: rgba(0, 10, 30, 0.85);
-            border: 2px solid var(--accent);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: var(--neon-glow);
-            backdrop-filter: blur(10px);
+            animation: slideUp 0.5s ease-out;
         }
         
         .app-header {
@@ -166,6 +173,11 @@
             color: var(--accent);
             font-size: 24px;
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .back-btn:hover {
+            transform: scale(1.1);
         }
         
         .app-title {
@@ -173,6 +185,7 @@
             text-shadow: var(--neon-glow);
             font-size: 24px;
             letter-spacing: 1px;
+            margin-top: 5px;
         }
         
         .stats-container {
@@ -182,27 +195,42 @@
             padding: 15px;
             margin: 20px 0;
             box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .stats-container.limit-reached {
+            box-shadow: 0 0 15px var(--error);
+            animation: pulseWarning 1.5s infinite;
         }
         
         .stat-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
+            gap: 10px;
         }
         
         .stat-card {
             flex: 1;
-            margin: 0 5px;
             text-align: center;
             background: rgba(0, 30, 60, 0.5);
             border-radius: 8px;
             padding: 10px;
+            min-width: 0;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
         }
         
         .stat-label {
             font-size: 14px;
             color: var(--accent);
             margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .stat-value {
@@ -263,11 +291,16 @@
             background: rgba(0, 255, 204, 0.3);
             border-radius: 50%;
             position: relative;
+            transition: transform 0.3s, background 0.3s;
         }
         
         .stamina-item.active {
             background: var(--accent);
             box-shadow: var(--neon-glow);
+        }
+        
+        .stamina-item:hover {
+            transform: scale(1.2);
         }
         
         .step-buttons {
@@ -296,7 +329,7 @@
         }
         
         .step-button.available:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
         }
         
@@ -348,11 +381,20 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
         .action-button:hover {
             background: rgba(0, 100, 200, 0.3);
             transform: translateY(-2px);
+        }
+        
+        .action-button .icon {
+            font-size: 24px;
+            margin-bottom: 5px;
         }
         
         .notification {
@@ -371,6 +413,7 @@
             box-shadow: var(--neon-glow);
             display: none;
             width: 90%;
+            animation: slideDown 0.3s ease-out;
         }
         
         .feature-info {
@@ -398,6 +441,7 @@
             justify-content: center;
             align-items: center;
             font-size: 40px;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
         }
         
         .referral-link-box {
@@ -408,6 +452,65 @@
             margin: 20px 0;
             word-break: break-all;
             font-size: 14px;
+            text-align: center;
+        }
+        
+        .info-content {
+            padding: 15px;
+            line-height: 1.6;
+        }
+        
+        .info-content h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .info-content p {
+            margin-bottom: 15px;
+        }
+        
+        .info-content ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-content li {
+            margin-bottom: 10px;
+        }
+        
+        .note-box {
+            background: rgba(255, 204, 0, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        
+        .cheat-warning {
+            background: rgba(255, 50, 50, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translate(-50%, -30px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
         }
         
         @keyframes shine {
@@ -421,8 +524,25 @@
             100% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
         }
         
-        .pulse {
-            animation: pulse 2s infinite;
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px var(--accent); }
+            100% { box-shadow: 0 0 15px var(--accent); }
+        }
+        
+        @keyframes pulseWarning {
+            0% { box-shadow: 0 0 5px var(--error); }
+            50% { box-shadow: 0 0 15px var(--error); }
+            100% { box-shadow: 0 0 5px var(--error); }
+        }
+        
+        @keyframes highlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .highlight {
+            animation: highlight 0.5s ease;
         }
     </style>
 </head>
@@ -430,27 +550,27 @@
     <div class="container">
         <!-- Welcome Screen -->
         <div class="welcome-screen" id="welcomeScreen">
-            <div class="app-logo pulse"></div>
+            <div class="app-logo"></div>
             <h1>JAMSTEP</h1>
-            <div class="testnet-badge">TESTNET VERSION</div>
+            <div class="testnet-badge">MVP TESTNET VERSION</div>
             
             <p class="welcome-text">
-                Earn JAMP tokens with every step you take. 
-                Move more, earn more in our revolutionary move-to-earn ecosystem!
+                TEST VERSION: Early adopters rewards program! 
+                Earn JAMP tokens during our MVP testing phase.
             </p>
             
             <button class="start-btn" onclick="startApp()">START EARNING</button>
         </div>
         
         <!-- Main Application -->
-        <div class="main-app" id="mainApp">
+        <div class="app-screen" id="mainApp">
             <div class="app-header">
-                <button class="back-btn" onclick="showScreen('mainApp')">←</button>
+                <button class="back-btn" onclick="showScreen('welcomeScreen')">←</button>
                 <div class="app-title">JAMSTEP</div>
-                <div class="testnet-badge">TESTNET VERSION</div>
+                <div class="testnet-badge" style="margin-top: 10px;">TESTNET VERSION</div>
             </div>
             
-            <div class="stats-container">
+            <div class="stats-container" id="statsContainer">
                 <div class="stat-row">
                     <div class="stat-card">
                         <div class="stat-label">TODAY'S STEPS</div>
@@ -472,23 +592,40 @@
                 </div>
             </div>
             
+            <div class="cheat-warning" id="cheatWarning">
+                ⚠️ Cheating detected! Your account has temporary restrictions
+            </div>
+            
             <div class="step-buttons" id="stepButtons">
                 <!-- Step buttons will be added here -->
             </div>
             
             <div class="action-buttons">
-                <button class="action-button" id="profileBtn">👤 PROFILE</button>
-                <button class="action-button" id="referralBtn">👥 REFERRALS</button>
-                <button class="action-button" id="supportBtn">🛠 SUPPORT</button>
+                <button class="action-button" id="profileBtn">
+                    <div class="icon">👤</div>
+                    <div>PROFILE</div>
+                </button>
+                <button class="action-button" id="referralBtn">
+                    <div class="icon">👥</div>
+                    <div>REFERRALS</div>
+                </button>
+                <button class="action-button" id="supportBtn">
+                    <div class="icon">🛠</div>
+                    <div>SUPPORT</div>
+                </button>
+                <button class="action-button" id="infoBtn">
+                    <div class="icon">ℹ️</div>
+                    <div>INFO</div>
+                </button>
             </div>
             
             <div class="feature-info">
-                <p>Fully working referral system!</p>
+                <p>MVP: Experimental token economics. Early adopters only!</p>
             </div>
         </div>
         
         <!-- Profile Screen -->
-        <div class="profile-screen" id="profileScreen">
+        <div class="app-screen" id="profileScreen">
             <div class="app-header">
                 <button class="back-btn" onclick="showScreen('mainApp')">←</button>
                 <div class="app-title">YOUR PROFILE</div>
@@ -530,7 +667,7 @@
         </div>
         
         <!-- Referral Screen -->
-        <div class="referral-screen" id="referralScreen">
+        <div class="app-screen" id="referralScreen">
             <div class="app-header">
                 <button class="back-btn" onclick="showScreen('mainApp')">←</button>
                 <div class="app-title">REFERRAL PROGRAM</div>
@@ -557,6 +694,30 @@
             </div>
         </div>
         
+        <!-- Info Screen -->
+        <div class="app-screen" id="infoScreen">
+            <div class="app-header">
+                <button class="back-btn" onclick="showScreen('mainApp')">←</button>
+                <div class="app-title">IMPORTANT INFO</div>
+            </div>
+            
+            <div class="info-content">
+                <h3>MVP REWARDS PROGRAM</h3>
+                <p>This test version exclusively rewards our first users:</p>
+                
+                <ul>
+                    <li>All earned JAMP will be preserved after main app launch</li>
+                    <li>Rewards distribution after official token listing</li>
+                    <li>Test version becomes read-only after official launch</li>
+                    <li>Only early adopters are eligible for rewards</li>
+                </ul>
+                
+                <div class="note-box">
+                    ⚠️ This is a limited test version. Rewards are only available to the first participants.
+                </div>
+            </div>
+        </div>
+        
         <!-- Notification -->
         <div class="notification" id="notification"></div>
     </div>
@@ -570,6 +731,7 @@
         const mainApp = document.getElementById('mainApp');
         const profileScreen = document.getElementById('profileScreen');
         const referralScreen = document.getElementById('referralScreen');
+        const infoScreen = document.getElementById('infoScreen');
         const stepsCounter = document.getElementById('stepsCounter');
         const jampCounter = document.getElementById('jampCounter');
         const progressBar = document.getElementById('progressBar');
@@ -580,6 +742,7 @@
         const profileBtn = document.getElementById('profileBtn');
         const referralBtn = document.getElementById('referralBtn');
         const supportBtn = document.getElementById('supportBtn');
+        const infoBtn = document.getElementById('infoBtn');
         const usernameDisplay = document.getElementById('usernameDisplay');
         const totalSteps = document.getElementById('totalSteps');
         const totalJamp = document.getElementById('totalJamp');
@@ -587,10 +750,12 @@
         const staminaCount = document.getElementById('staminaCount');
         const currentReferrals = document.getElementById('currentReferrals');
         const referralLink = document.getElementById('referralLink');
+        const statsContainer = document.getElementById('statsContainer');
+        const cheatWarning = document.getElementById('cheatWarning');
         
-        // App Configuration - CHANGE THIS!
-        const BOT_USERNAME = "JamStep_bot"; // REPLACE WITH YOUR BOT USERNAME
-        const SUPPORT_USERNAME = "JamMav"; // REPLACE WITH YOUR SUPPORT USERNAME
+        // App Configuration
+        const BOT_USERNAME = "JamStep_bot";
+        const SUPPORT_USERNAME = "JamMav";
         
         // Reward rates
         const REWARD_RATES = {
@@ -612,38 +777,47 @@
             referrals: 0,
             maxReferrals: 3,
             referralCode: null,
+            referrerId: null,
+            referralBonusClaimed: false,
             stepButtons: [
                 { 
                     value: 500, 
                     unlock: 0, 
                     available: true,
                     maxUses: 2,
-                    uses: 0
+                    uses: 0,
+                    timer: null
                 },
                 { 
                     value: 1000, 
-                    unlock: 3600,  // 1 hour = 3600 seconds
-                    available: false,
+                    unlock: 0, 
+                    available: true,
                     maxUses: 1,
-                    uses: 0
+                    uses: 0,
+                    timer: null
                 },
                 { 
                     value: 5000, 
-                    unlock: 10800, // 3 hours = 10800 seconds
-                    available: false,
+                    unlock: 0, 
+                    available: true,
                     maxUses: 1,
-                    uses: 0
+                    uses: 0,
+                    timer: null
                 },
                 { 
                     value: 10000, 
-                    unlock: 21600, // 6 hours = 21600 seconds
-                    available: false,
+                    unlock: 0, 
+                    available: true,
                     maxUses: 1,
-                    uses: 0
+                    uses: 0,
+                    timer: null
                 }
             ],
             lastUpdate: null,
-            referralBonusClaimed: false
+            lastSupportContact: null,
+            supportQuota: 2,
+            banCount: 0,
+            banExpiration: null
         };
         
         // Initialize the app
@@ -656,6 +830,16 @@
                 userData.userId = tg.initDataUnsafe.user.id;
                 userData.username = tg.initDataUnsafe.user.username || 
                                   `${tg.initDataUnsafe.user.first_name}${tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : ''}`;
+                
+                usernameDisplay.textContent = userData.username;
+            }
+            
+            // Check for referral code in start_param
+            if (tg.initDataUnsafe.start_param) {
+                const refParam = tg.initDataUnsafe.start_param;
+                if (refParam.startsWith('ref_')) {
+                    userData.referrerId = refParam.split('ref_')[1];
+                }
             }
             
             // Generate referral code if doesn't exist
@@ -669,32 +853,44 @@
             // Process referral if any
             processReferral();
             
-            // Process commands
-            processCommands();
-            
             // Show welcome screen
             welcomeScreen.style.display = 'block';
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
             referralScreen.style.display = 'none';
+            infoScreen.style.display = 'none';
+            
+            // Add event listeners
+            setupEventListeners();
         }
         
-        // Process bot commands
-        function processCommands() {
-            // Check if we have a command parameter
-            if (tg.initDataUnsafe.start_param) {
-                const param = tg.initDataUnsafe.start_param;
-                
-                if (param === "invite_command") {
-                    // User clicked /invite
-                    startApp();
-                    setTimeout(() => showScreen('referralScreen'), 300);
-                }
-                else if (param.startsWith('ref_')) {
-                    // User came from referral link
-                    // Bonus will be processed in processReferral()
-                }
-            }
+        // Setup event listeners
+        function setupEventListeners() {
+            profileBtn.addEventListener('click', () => {
+                showScreen('profileScreen');
+            });
+            
+            referralBtn.addEventListener('click', () => {
+                showScreen('referralScreen');
+            });
+            
+            supportBtn.addEventListener('click', () => {
+                handleSupportClick();
+            });
+            
+            infoBtn.addEventListener('click', () => {
+                showScreen('infoScreen');
+            });
+            
+            // Save data when closing
+            tg.onEvent('viewportChanged', (e) => {
+                if (e.isStateStable) saveUserData();
+            });
+            
+            tg.onEvent('closing', () => saveUserData());
+            
+            // Auto-save on user interaction
+            document.addEventListener('click', autoSave);
         }
         
         // Generate referral code
@@ -726,12 +922,11 @@
                     // Reset button uses
                     data.stepButtons.forEach(btn => {
                         btn.uses = 0;
-                        
-                        // Reset availability for buttons that were maxed
-                        if (btn.uses >= btn.maxUses && btn.unlock <= 0) {
-                            btn.available = true;
-                        }
+                        btn.available = (btn.unlock <= 0);
                     });
+                    
+                    // Reset support quota
+                    data.supportQuota = 2;
                 }
                 
                 // Update timers
@@ -748,6 +943,17 @@
                 // Apply loaded data
                 userData = data;
             }
+            
+            // Check ban status
+            if (userData.banExpiration && Date.now() < userData.banExpiration) {
+                cheatWarning.style.display = 'block';
+            }
+        }
+        
+        // Auto-save user data
+        function autoSave() {
+            clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(saveUserData, 1000);
         }
         
         // Save user data to localStorage
@@ -758,42 +964,29 @@
         
         // Process referral from URL
         function processReferral() {
-            // Check for referral code in Telegram start parameter
-            if (tg.initDataUnsafe.start_param) {
-                const refCode = tg.initDataUnsafe.start_param;
+            // Check if bonus already claimed
+            if (userData.referrerId && !userData.referralBonusClaimed) {
+                // Add bonus to new user
+                userData.totalJamp += 0.05;
                 
-                // Verify referral format
-                if (refCode.startsWith('ref_')) {
-                    const referrerCode = refCode.split('ref_')[1];
+                // Add bonus to referrer
+                const referrerData = localStorage.getItem(`referrer_${userData.referrerId}`);
+                if (referrerData) {
+                    const referrer = JSON.parse(referrerData);
+                    referrer.referrals += 1;
+                    referrer.totalJamp += 0.05;
+                    localStorage.setItem(`referrer_${userData.referrerId}`, JSON.stringify(referrer));
                     
-                    // Check if bonus already claimed
-                    if (!userData.referralBonusClaimed) {
-                        // Add bonus to new user
+                    // Update current user if they are the referrer
+                    if (userData.referralCode === userData.referrerId) {
+                        userData.referrals += 1;
                         userData.totalJamp += 0.05;
-                        userData.referralBonusClaimed = true;
-                        
-                        // Add bonus to referrer
-                        const referrerData = localStorage.getItem(`referrer_${referrerCode}`);
-                        if (referrerData) {
-                            const referrer = JSON.parse(referrerData);
-                            referrer.referrals += 1;
-                            referrer.totalJamp += 0.05;
-                            localStorage.setItem(`referrer_${referrerCode}`, JSON.stringify(referrer));
-                            
-                            // Update current user if they are the referrer
-                            if (userData.referralCode === referrerCode) {
-                                userData.referrals += 1;
-                                userData.totalJamp += 0.05;
-                            }
-                        }
-                        
-                        // Show notification
-                        showNotification("🎉 You received 0.05 JAMP for joining via referral!", "success");
-                        
-                        // Save data
-                        saveUserData();
                     }
                 }
+                
+                userData.referralBonusClaimed = true;
+                showNotification("🎉 You received 0.05 JAMP for joining via referral!", "success");
+                saveUserData();
             }
         }
         
@@ -812,9 +1005,13 @@
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
             referralScreen.style.display = 'none';
+            infoScreen.style.display = 'none';
             
             if (screenName === 'welcomeScreen') welcomeScreen.style.display = 'block';
-            else if (screenName === 'mainApp') mainApp.style.display = 'block';
+            else if (screenName === 'mainApp') {
+                mainApp.style.display = 'block';
+                updateUI();
+            }
             else if (screenName === 'profileScreen') {
                 updateProfileScreen();
                 profileScreen.style.display = 'block';
@@ -822,6 +1019,9 @@
             else if (screenName === 'referralScreen') {
                 updateReferralScreen();
                 referralScreen.style.display = 'block';
+            }
+            else if (screenName === 'infoScreen') {
+                infoScreen.style.display = 'block';
             }
         }
         
@@ -835,6 +1035,14 @@
             const progress = Math.min((userData.stepsToday / 10000) * 100, 100);
             progressBar.style.width = `${progress}%`;
             progressText.textContent = `${Math.round(progress)}%`;
+            
+            // Update progress bar style if limit reached
+            if (userData.stepsToday >= 10000) {
+                statsContainer.classList.add('limit-reached');
+                progressText.textContent = "DAILY LIMIT REACHED";
+            } else {
+                statsContainer.classList.remove('limit-reached');
+            }
             
             // Update stamina
             updateStaminaUI();
@@ -902,12 +1110,13 @@
         // Start timers for unlocking buttons
         function startUnlockTimers() {
             userData.stepButtons.forEach(button => {
-                if (!button.available && button.unlock > 0) {
-                    const timer = setInterval(() => {
+                if (!button.available && button.unlock > 0 && !button.timer) {
+                    button.timer = setInterval(() => {
                         button.unlock--;
                         
                         if (button.unlock <= 0) {
-                            clearInterval(timer);
+                            clearInterval(button.timer);
+                            button.timer = null;
                             button.available = true;
                             updateStepButtons();
                         } else {
@@ -934,6 +1143,13 @@
         
         // Submit steps
         function submitSteps(button) {
+            // Check ban status
+            if (userData.banExpiration && Date.now() < userData.banExpiration) {
+                const banTime = Math.ceil((userData.banExpiration - Date.now()) / 60000);
+                showNotification(`Account restricted! Try again in ${banTime} minutes`, "error");
+                return;
+            }
+            
             // Check if button has reached max uses
             if (button.uses >= button.maxUses) {
                 showNotification(`You can only use ${button.value} steps button ${button.maxUses} times per day`, "warning");
@@ -956,14 +1172,15 @@
             // How many steps we can actually add (not more than remaining)
             const stepsToAdd = Math.min(button.value, remainingSteps);
             
-            // Anti-cheat protection for 10,000 steps
-            if (button.value === 10000 && !button.available) {
-                showNotification("You tried to submit steps too quickly! 30-min ban applied.", "error");
-                button.unlock = 1800; // 30 minutes
-                button.available = false;
-                saveUserData();
-                updateStepButtons();
-                return;
+            // Anti-cheat protection
+            if (button.value === 10000 && userData.stepButtons[0].uses > 0) {
+                const lastClick = new Date(userData.lastUpdate);
+                const timeDiff = (Date.now() - lastClick) / 1000;
+                
+                if (timeDiff < 1800) { // 30 minutes
+                    handleCheatAttempt();
+                    return;
+                }
             }
             
             // Calculate JAMP reward based on predefined rates
@@ -975,6 +1192,13 @@
             userData.stamina -= 1;
             button.uses += 1;
             
+            // Lock the button with realistic unlock time
+            if (button.uses < button.maxUses) {
+                button.available = false;
+                button.unlock = getRealisticUnlockTime(button.value);
+                startUnlockTimer(button);
+            }
+            
             // Save data
             saveUserData();
             
@@ -983,6 +1207,52 @@
             
             // Update UI
             updateUI();
+        }
+        
+        // Get realistic unlock time for buttons
+        function getRealisticUnlockTime(steps) {
+            // Based on average walking speed (100 steps/min)
+            const minutes = steps / 100;
+            return minutes * 60; // Convert to seconds
+        }
+        
+        // Handle cheat attempt
+        function handleCheatAttempt() {
+            userData.banCount++;
+            
+            if (userData.banCount === 1) {
+                userData.banExpiration = Date.now() + 1800000; // 30 minutes
+                showNotification("⚠️ Cheat detected! 30-min ban applied. Next violation: 2.5h ban", "warning");
+            } 
+            else if (userData.banCount === 2) {
+                userData.banExpiration = Date.now() + 9000000; // 2.5 hours (150 minutes)
+                showNotification("⛔ Final warning! Next violation = PERMANENT BAN", "error");
+            }
+            else {
+                userData.banExpiration = Number.MAX_SAFE_INTEGER; // Permanent ban
+                showNotification("🚫 ACCOUNT BANNED: Cheating detected", "error");
+            }
+            
+            cheatWarning.style.display = 'block';
+            saveUserData();
+        }
+        
+        // Start unlock timer for a button
+        function startUnlockTimer(button) {
+            if (button.timer) {
+                clearInterval(button.timer);
+            }
+            
+            button.timer = setInterval(() => {
+                button.unlock--;
+                
+                if (button.unlock <= 0) {
+                    clearInterval(button.timer);
+                    button.timer = null;
+                    button.available = true;
+                    updateStepButtons();
+                }
+            }, 1000);
         }
         
         // Copy referral link to clipboard
@@ -995,6 +1265,29 @@
                 .catch(() => {
                     showNotification("Failed to copy link. Please copy manually.", "error");
                 });
+        }
+        
+        // Handle support button click
+        function handleSupportClick() {
+            const now = Date.now();
+            const weekMs = 7 * 24 * 60 * 60 * 1000; // 7 days
+            
+            // Reset quota if it's been more than a week
+            if (!userData.lastSupportContact || (now - userData.lastSupportContact) > weekMs) {
+                userData.supportQuota = 2;
+                userData.lastSupportContact = now;
+            }
+            
+            if (userData.supportQuota > 0) {
+                userData.supportQuota--;
+                userData.lastSupportContact = now;
+                tg.openTelegramLink(`https://t.me/${SUPPORT_USERNAME}`);
+                showNotification("Contacting support... You have " + userData.supportQuota + " support requests left this week", "info");
+                saveUserData();
+            } else {
+                const nextDate = new Date(userData.lastSupportContact + weekMs);
+                showNotification(`Support quota exhausted. Available after: ${nextDate.toLocaleDateString()}`, "warning");
+            }
         }
         
         // Show notification
@@ -1022,19 +1315,6 @@
                 notification.style.display = 'none';
             }, 5000);
         }
-        
-        // Button event listeners
-        profileBtn.addEventListener('click', () => {
-            showScreen('profileScreen');
-        });
-        
-        referralBtn.addEventListener('click', () => {
-            showScreen('referralScreen');
-        });
-        
-        supportBtn.addEventListener('click', () => {
-            tg.openTelegramLink(`https://t.me/${SUPPORT_USERNAME}`);
-        });
         
         // Initialize the app when page loads
         document.addEventListener('DOMContentLoaded', initApp);
