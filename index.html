@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JamStep - Move to Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚶‍♂️</text></svg>">
     <style>
         :root {
             --primary: #001a33;
@@ -38,7 +37,7 @@
         }
         
         .container {
-            max-width: 450px;
+            max-width: 480px; /* Шире на 30px */
             width: 100%;
             position: relative;
         }
@@ -98,9 +97,25 @@
         }
         
         .welcome-text {
-            font-size: 16px;
+            font-size: 18px; /* Увеличен шрифт */
             line-height: 1.6;
             margin-bottom: 25px;
+            text-align: left;
+            padding: 10px;
+            background: rgba(0, 30, 60, 0.3);
+            border-radius: 10px;
+        }
+        
+        .welcome-text p {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .welcome-text p:before {
+            content: '•';
+            margin-right: 10px;
+            color: var(--accent);
         }
         
         .start-btn {
@@ -108,14 +123,14 @@
             color: white;
             border: none;
             border-radius: 30px;
-            padding: 15px 40px;
-            font-size: 18px;
+            padding: 18px 40px; /* Увеличена высота */
+            font-size: 20px; /* Увеличен шрифт */
             font-weight: bold;
             cursor: pointer;
             box-shadow: var(--neon-glow);
             transition: all 0.3s;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px; /* Шире на 20px */
             margin-top: 10px;
             display: inline-block;
             text-align: center;
@@ -135,11 +150,6 @@
             transition: all 0.5s;
         }
         
-        .start-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
-        }
-        
         .start-btn:hover::after {
             left: 120%;
         }
@@ -150,7 +160,7 @@
             background: rgba(0, 10, 30, 0.85);
             border: 2px solid var(--accent);
             border-radius: 15px;
-            padding: 20px;
+            padding: 25px; /* Увеличен padding */
             box-shadow: var(--neon-glow);
             backdrop-filter: blur(10px);
             animation: slideUp 0.5s ease-out;
@@ -158,7 +168,7 @@
         
         .app-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px; /* Увеличен отступ */
             padding-bottom: 15px;
             border-bottom: 1px solid rgba(0, 255, 204, 0.3);
             position: relative;
@@ -171,7 +181,7 @@
             background: none;
             border: none;
             color: var(--accent);
-            font-size: 24px;
+            font-size: 28px; /* Увеличен размер */
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -183,7 +193,7 @@
         .app-title {
             color: var(--accent);
             text-shadow: var(--neon-glow);
-            font-size: 24px;
+            font-size: 26px; /* Увеличен шрифт */
             letter-spacing: 1px;
             margin-top: 5px;
         }
@@ -192,8 +202,8 @@
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--accent);
             border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
+            padding: 18px; /* Увеличен padding */
+            margin: 25px 0; /* Увеличен отступ */
             box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
             transition: all 0.3s;
         }
@@ -206,8 +216,8 @@
         .stat-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
-            gap: 10px;
+            margin-bottom: 18px; /* Увеличен отступ */
+            gap: 12px; /* Увеличен gap */
         }
         
         .stat-card {
@@ -215,7 +225,7 @@
             text-align: center;
             background: rgba(0, 30, 60, 0.5);
             border-radius: 8px;
-            padding: 10px;
+            padding: 15px; /* Увеличен padding */
             min-width: 0;
             transition: transform 0.3s;
         }
@@ -225,16 +235,16 @@
         }
         
         .stat-label {
-            font-size: 14px;
+            font-size: 16px; /* Увеличен шрифт */
             color: var(--accent);
-            margin-bottom: 5px;
+            margin-bottom: 8px; /* Увеличен отступ */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
         .stat-value {
-            font-size: 20px;
+            font-size: 22px; /* Увеличен шрифт */
             font-weight: bold;
             color: white;
             text-shadow: var(--neon-glow);
@@ -243,8 +253,8 @@
         .progress-container {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
-            height: 25px;
-            margin: 20px 0;
+            height: 28px; /* Увеличен размер */
+            margin: 22px 0; /* Увеличен отступ */
             overflow: hidden;
             position: relative;
         }
@@ -275,19 +285,19 @@
             transform: translate(-50%, -50%);
             font-weight: bold;
             color: white;
-            font-size: 12px;
+            font-size: 14px; /* Увеличен шрифт */
         }
         
         .stamina-container {
             display: flex;
             justify-content: center;
-            margin: 15px 0;
-            gap: 8px;
+            margin: 18px 0; /* Увеличен отступ */
+            gap: 10px; /* Увеличен gap */
         }
         
         .stamina-item {
-            width: 20px;
-            height: 20px;
+            width: 22px; /* Увеличен размер */
+            height: 22px; /* Увеличен размер */
             background: rgba(0, 255, 204, 0.3);
             border-radius: 50%;
             position: relative;
@@ -306,17 +316,17 @@
         .step-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 25px 0;
+            gap: 18px; /* Увеличен gap */
+            margin: 28px 0; /* Увеличен отступ */
         }
         
         .step-button {
             background: linear-gradient(135deg, var(--primary), #003366);
             color: white;
             border: none;
-            border-radius: 10px;
-            padding: 15px;
-            font-size: 16px;
+            border-radius: 12px; /* Увеличен радиус */
+            padding: 18px; /* Увеличен padding */
+            font-size: 18px; /* Увеличен шрифт */
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -346,29 +356,29 @@
         }
         
         .step-value {
-            font-size: 20px;
+            font-size: 22px; /* Увеличен шрифт */
             font-weight: bold;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px; /* Увеличен отступ */
         }
         
         .step-label {
             display: block;
-            font-size: 14px;
+            font-size: 16px; /* Увеличен шрифт */
         }
         
         .timer {
             display: block;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 14px; /* Увеличен шрифт */
+            margin-top: 8px; /* Увеличен отступ */
             color: var(--accent);
         }
         
         .action-buttons {
             display: flex;
             justify-content: space-between;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px; /* Увеличен gap */
+            margin-top: 25px; /* Увеличен отступ */
         }
         
         .action-button {
@@ -376,8 +386,8 @@
             background: rgba(0, 50, 100, 0.5);
             color: var(--accent);
             border: 1px solid var(--accent);
-            border-radius: 8px;
-            padding: 12px;
+            border-radius: 10px; /* Увеличен радиус */
+            padding: 15px; /* Увеличен padding */
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -385,6 +395,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            font-size: 16px; /* Увеличен шрифт */
         }
         
         .action-button:hover {
@@ -393,8 +404,8 @@
         }
         
         .action-button .icon {
-            font-size: 24px;
-            margin-bottom: 5px;
+            font-size: 28px; /* Увеличен размер */
+            margin-bottom: 8px; /* Увеличен отступ */
         }
         
         .notification {
@@ -406,7 +417,7 @@
             color: white;
             border: 1px solid var(--accent);
             border-radius: 10px;
-            padding: 15px;
+            padding: 18px; /* Увеличен padding */
             max-width: 90%;
             z-index: 1000;
             text-align: center;
@@ -414,33 +425,34 @@
             display: none;
             width: 90%;
             animation: slideDown 0.3s ease-out;
+            font-size: 16px; /* Увеличен шрифт */
         }
         
         .feature-info {
             background: rgba(0, 50, 100, 0.3);
             border: 1px solid var(--accent);
             border-radius: 10px;
-            padding: 10px;
-            margin-top: 15px;
+            padding: 12px; /* Увеличен padding */
+            margin-top: 18px; /* Увеличен отступ */
             text-align: center;
-            font-size: 12px;
+            font-size: 14px; /* Увеличен шрифт */
         }
         
         .profile-info {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px; /* Увеличен отступ */
         }
         
         .avatar {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
+            width: 90px; /* Увеличен размер */
+            height: 90px; /* Увеличен размер */
+            margin: 0 auto 18px; /* Увеличен отступ */
             background: rgba(0, 255, 204, 0.2);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 40px;
+            font-size: 45px; /* Увеличен размер */
             box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
         }
         
@@ -448,53 +460,57 @@
             background: rgba(0, 30, 60, 0.5);
             border: 1px solid var(--accent);
             border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
+            padding: 18px; /* Увеличен padding */
+            margin: 22px 0; /* Увеличен отступ */
             word-break: break-all;
-            font-size: 14px;
+            font-size: 16px; /* Увеличен шрифт */
             text-align: center;
         }
         
         .info-content {
-            padding: 15px;
+            padding: 18px; /* Увеличен padding */
             line-height: 1.6;
+            font-size: 16px; /* Увеличен шрифт */
         }
         
         .info-content h3 {
             color: var(--accent);
-            margin-bottom: 15px;
+            margin-bottom: 18px; /* Увеличен отступ */
             text-align: center;
+            font-size: 22px; /* Увеличен шрифт */
         }
         
         .info-content p {
-            margin-bottom: 15px;
+            margin-bottom: 18px; /* Увеличен отступ */
         }
         
         .info-content ul {
-            padding-left: 20px;
-            margin-bottom: 20px;
+            padding-left: 25px; /* Увеличен отступ */
+            margin-bottom: 22px; /* Увеличен отступ */
         }
         
         .info-content li {
-            margin-bottom: 10px;
+            margin-bottom: 12px; /* Увеличен отступ */
         }
         
         .note-box {
             background: rgba(255, 204, 0, 0.1);
             border: 1px solid var(--warning);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 20px;
+            border-radius: 10px;
+            padding: 12px; /* Увеличен padding */
+            margin-top: 22px; /* Увеличен отступ */
+            font-size: 15px; /* Увеличен шрифт */
         }
         
         .cheat-warning {
             background: rgba(255, 50, 50, 0.1);
             border: 1px solid var(--error);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 15px 0;
+            border-radius: 10px;
+            padding: 15px; /* Увеличен padding */
+            margin: 18px 0; /* Увеличен отступ */
             text-align: center;
             display: none;
+            font-size: 16px; /* Увеличен шрифт */
         }
         
         /* Animations */
@@ -554,10 +570,13 @@
             <h1>JAMSTEP</h1>
             <div class="testnet-badge">MVP TESTNET VERSION</div>
             
-            <p class="welcome-text">
-                TEST VERSION: Early adopters rewards program! 
-                Earn JAMP tokens during our MVP testing phase.
-            </p>
+            <div class="welcome-text">
+                <p>Welcome to JamStep Testnet! 🟢</p>
+                <p>🏃‍♂️ Walk - earn JAMP tokens</p>
+                <p>👥 Invite friends - get rewards</p>
+                <p>🎁 All new users get registration bonus</p>
+                <p>⚠️ This test version rewards only early adopters</p>
+            </div>
             
             <button class="start-btn" onclick="startApp()">START EARNING</button>
         </div>
@@ -765,6 +784,14 @@
             10000: 0.3    // 0.3 JAMP for 10000 steps
         };
         
+        // Unlock times in seconds (PRE-TIMERS)
+        const UNLOCK_TIMES = {
+            500: 420,    // 7 minutes
+            1000: 600,   // 10 minutes
+            5000: 1800,  // 30 minutes
+            10000: 3600  // 60 minutes
+        };
+        
         // App State
         let userData = {
             userId: null,
@@ -783,7 +810,7 @@
                 { 
                     value: 500, 
                     unlock: 0, 
-                    available: true,
+                    available: false,
                     maxUses: 2,
                     uses: 0,
                     timer: null
@@ -791,7 +818,7 @@
                 { 
                     value: 1000, 
                     unlock: 0, 
-                    available: true,
+                    available: false,
                     maxUses: 1,
                     uses: 0,
                     timer: null
@@ -799,7 +826,7 @@
                 { 
                     value: 5000, 
                     unlock: 0, 
-                    available: true,
+                    available: false,
                     maxUses: 1,
                     uses: 0,
                     timer: null
@@ -807,12 +834,13 @@
                 { 
                     value: 10000, 
                     unlock: 0, 
-                    available: true,
+                    available: false,
                     maxUses: 1,
                     uses: 0,
                     timer: null
                 }
             ],
+            registrationTime: null,
             lastUpdate: null,
             lastSupportContact: null,
             supportQuota: 2,
@@ -836,10 +864,7 @@
             
             // Check for referral code in start_param
             if (tg.initDataUnsafe.start_param) {
-                const refParam = tg.initDataUnsafe.start_param;
-                if (refParam.startsWith('ref_')) {
-                    userData.referrerId = refParam.split('ref_')[1];
-                }
+                userData.referrerId = tg.initDataUnsafe.start_param;
             }
             
             // Generate referral code if doesn't exist
@@ -850,8 +875,17 @@
             // Load saved data
             loadUserData();
             
+            // If new user, set registration time
+            if (!userData.registrationTime) {
+                userData.registrationTime = Date.now();
+                saveUserData();
+            }
+            
             // Process referral if any
             processReferral();
+            
+            // Initialize step timers
+            initStepTimers();
             
             // Show welcome screen
             welcomeScreen.style.display = 'block';
@@ -922,23 +956,11 @@
                     // Reset button uses
                     data.stepButtons.forEach(btn => {
                         btn.uses = 0;
-                        btn.available = (btn.unlock <= 0);
                     });
                     
                     // Reset support quota
                     data.supportQuota = 2;
                 }
-                
-                // Update timers
-                const timeDiff = Math.floor((now - lastUpdate) / 1000);
-                data.stepButtons.forEach(btn => {
-                    if (!btn.available && btn.unlock > 0) {
-                        btn.unlock = Math.max(0, btn.unlock - timeDiff);
-                        if (btn.unlock === 0) {
-                            btn.available = true;
-                        }
-                    }
-                });
                 
                 // Apply loaded data
                 userData = data;
@@ -968,6 +990,7 @@
             if (userData.referrerId && !userData.referralBonusClaimed) {
                 // Add bonus to new user
                 userData.totalJamp += 0.05;
+                userData.referralBonusClaimed = true;
                 
                 // Add bonus to referrer
                 const referrerData = localStorage.getItem(`referrer_${userData.referrerId}`);
@@ -984,19 +1007,71 @@
                     }
                 }
                 
-                userData.referralBonusClaimed = true;
                 showNotification("🎉 You received 0.05 JAMP for joining via referral!", "success");
                 saveUserData();
             }
+        }
+        
+        // Initialize step timers
+        function initStepTimers() {
+            const now = Date.now();
+            const elapsed = Math.floor((now - userData.registrationTime) / 1000);
+            
+            userData.stepButtons.forEach(button => {
+                // Calculate remaining unlock time
+                const remaining = UNLOCK_TIMES[button.value] - elapsed;
+                
+                if (remaining <= 0) {
+                    button.available = true;
+                    button.unlock = 0;
+                } else {
+                    button.available = false;
+                    button.unlock = remaining;
+                    startUnlockTimer(button);
+                }
+            });
+        }
+        
+        // Start unlock timer for a button
+        function startUnlockTimer(button) {
+            if (button.timer) {
+                clearInterval(button.timer);
+            }
+            
+            button.timer = setInterval(() => {
+                button.unlock--;
+                
+                if (button.unlock <= 0) {
+                    clearInterval(button.timer);
+                    button.timer = null;
+                    button.available = true;
+                    updateStepButtons();
+                } else {
+                    updateStepButtonText(button.value);
+                }
+            }, 1000);
+        }
+        
+        // Update step button text
+        function updateStepButtonText(value) {
+            const button = userData.stepButtons.find(b => b.value === value);
+            if (!button) return;
+            
+            const buttonEls = document.querySelectorAll('.step-button');
+            buttonEls.forEach(el => {
+                if (el.querySelector('.step-value').textContent === String(value)) {
+                    const timerEl = el.querySelector('.timer');
+                    if (timerEl) {
+                        timerEl.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
+                    }
+                }
+            });
         }
         
         // Start the main application
         function startApp() {
             showScreen('mainApp');
             updateUI();
-            
-            // Start timers for unlocking buttons
-            startUnlockTimers();
         }
         
         // Show specific screen
@@ -1107,31 +1182,6 @@
             });
         }
         
-        // Start timers for unlocking buttons
-        function startUnlockTimers() {
-            userData.stepButtons.forEach(button => {
-                if (!button.available && button.unlock > 0 && !button.timer) {
-                    button.timer = setInterval(() => {
-                        button.unlock--;
-                        
-                        if (button.unlock <= 0) {
-                            clearInterval(button.timer);
-                            button.timer = null;
-                            button.available = true;
-                            updateStepButtons();
-                        } else {
-                            const buttons = document.querySelectorAll('.step-button.locked .timer');
-                            if (buttons.length > 0) {
-                                buttons.forEach(btn => {
-                                    btn.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
-                                });
-                            }
-                        }
-                    }, 1000);
-                }
-            });
-        }
-        
         // Format time (seconds to HH:MM:SS)
         function formatTime(seconds) {
             const hrs = Math.floor(seconds / 3600);
@@ -1192,12 +1242,8 @@
             userData.stamina -= 1;
             button.uses += 1;
             
-            // Lock the button with realistic unlock time
-            if (button.uses < button.maxUses) {
-                button.available = false;
-                button.unlock = getRealisticUnlockTime(button.value);
-                startUnlockTimer(button);
-            }
+            // Lock the button until next day
+            button.available = false;
             
             // Save data
             saveUserData();
@@ -1207,13 +1253,6 @@
             
             // Update UI
             updateUI();
-        }
-        
-        // Get realistic unlock time for buttons
-        function getRealisticUnlockTime(steps) {
-            // Based on average walking speed (100 steps/min)
-            const minutes = steps / 100;
-            return minutes * 60; // Convert to seconds
         }
         
         // Handle cheat attempt
@@ -1235,24 +1274,6 @@
             
             cheatWarning.style.display = 'block';
             saveUserData();
-        }
-        
-        // Start unlock timer for a button
-        function startUnlockTimer(button) {
-            if (button.timer) {
-                clearInterval(button.timer);
-            }
-            
-            button.timer = setInterval(() => {
-                button.unlock--;
-                
-                if (button.unlock <= 0) {
-                    clearInterval(button.timer);
-                    button.timer = null;
-                    button.available = true;
-                    updateStepButtons();
-                }
-            }, 1000);
         }
         
         // Copy referral link to clipboard
