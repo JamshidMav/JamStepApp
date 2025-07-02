@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JamStep - Move to Earn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JamStep - Move2Earn Fitness App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -25,33 +25,47 @@
             font-family: 'Arial', sans-serif;
         }
         
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
         body {
             background: linear-gradient(135deg, #000428, #004e92);
             color: var(--light);
-            min-height: 100vh;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
+            padding: 0;
         }
         
         .container {
-            max-width: 480px; /* Шире на 30px */
             width: 100%;
-            position: relative;
+            height: 100%;
+            max-width: 100%;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
         }
         
         /* Welcome Screen Styles */
         .welcome-screen {
             background: rgba(0, 10, 30, 0.85);
             border: 2px solid var(--accent);
-            border-radius: 20px;
+            border-radius: 0;
             padding: 30px;
             text-align: center;
             box-shadow: var(--neon-glow);
             backdrop-filter: blur(10px);
             animation: fadeIn 0.8s ease-out;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
         }
         
         .app-logo {
@@ -97,25 +111,20 @@
         }
         
         .welcome-text {
-            font-size: 18px; /* Увеличен шрифт */
+            font-size: 16px;
             line-height: 1.6;
             margin-bottom: 25px;
-            text-align: left;
-            padding: 10px;
+            max-width: 90%;
+        }
+        
+        #welcomeMessage {
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 20px 0;
+            padding: 15px;
             background: rgba(0, 30, 60, 0.3);
             border-radius: 10px;
-        }
-        
-        .welcome-text p {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .welcome-text p:before {
-            content: '•';
-            margin-right: 10px;
-            color: var(--accent);
+            text-align: left;
         }
         
         .start-btn {
@@ -123,14 +132,14 @@
             color: white;
             border: none;
             border-radius: 30px;
-            padding: 18px 40px; /* Увеличена высота */
-            font-size: 20px; /* Увеличен шрифт */
+            padding: 15px 40px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: var(--neon-glow);
             transition: all 0.3s;
             width: 100%;
-            max-width: 320px; /* Шире на 20px */
+            max-width: 300px;
             margin-top: 10px;
             display: inline-block;
             text-align: center;
@@ -159,16 +168,20 @@
             display: none;
             background: rgba(0, 10, 30, 0.85);
             border: 2px solid var(--accent);
-            border-radius: 15px;
-            padding: 25px; /* Увеличен padding */
+            border-radius: 0;
+            padding: 20px;
             box-shadow: var(--neon-glow);
             backdrop-filter: blur(10px);
             animation: slideUp 0.5s ease-out;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
         }
         
         .app-header {
             text-align: center;
-            margin-bottom: 25px; /* Увеличен отступ */
+            margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 1px solid rgba(0, 255, 204, 0.3);
             position: relative;
@@ -181,7 +194,7 @@
             background: none;
             border: none;
             color: var(--accent);
-            font-size: 28px; /* Увеличен размер */
+            font-size: 24px;
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -193,7 +206,7 @@
         .app-title {
             color: var(--accent);
             text-shadow: var(--neon-glow);
-            font-size: 26px; /* Увеличен шрифт */
+            font-size: 24px;
             letter-spacing: 1px;
             margin-top: 5px;
         }
@@ -202,8 +215,8 @@
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--accent);
             border-radius: 10px;
-            padding: 18px; /* Увеличен padding */
-            margin: 25px 0; /* Увеличен отступ */
+            padding: 15px;
+            margin: 20px 0;
             box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
             transition: all 0.3s;
         }
@@ -216,8 +229,8 @@
         .stat-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 18px; /* Увеличен отступ */
-            gap: 12px; /* Увеличен gap */
+            margin-bottom: 15px;
+            gap: 10px;
         }
         
         .stat-card {
@@ -225,7 +238,7 @@
             text-align: center;
             background: rgba(0, 30, 60, 0.5);
             border-radius: 8px;
-            padding: 15px; /* Увеличен padding */
+            padding: 10px;
             min-width: 0;
             transition: transform 0.3s;
         }
@@ -235,16 +248,16 @@
         }
         
         .stat-label {
-            font-size: 16px; /* Увеличен шрифт */
+            font-size: 14px;
             color: var(--accent);
-            margin-bottom: 8px; /* Увеличен отступ */
+            margin-bottom: 5px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
         .stat-value {
-            font-size: 22px; /* Увеличен шрифт */
+            font-size: 20px;
             font-weight: bold;
             color: white;
             text-shadow: var(--neon-glow);
@@ -253,8 +266,8 @@
         .progress-container {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
-            height: 28px; /* Увеличен размер */
-            margin: 22px 0; /* Увеличен отступ */
+            height: 25px;
+            margin: 20px 0;
             overflow: hidden;
             position: relative;
         }
@@ -285,19 +298,19 @@
             transform: translate(-50%, -50%);
             font-weight: bold;
             color: white;
-            font-size: 14px; /* Увеличен шрифт */
+            font-size: 12px;
         }
         
         .stamina-container {
             display: flex;
             justify-content: center;
-            margin: 18px 0; /* Увеличен отступ */
-            gap: 10px; /* Увеличен gap */
+            margin: 15px 0;
+            gap: 8px;
         }
         
         .stamina-item {
-            width: 22px; /* Увеличен размер */
-            height: 22px; /* Увеличен размер */
+            width: 20px;
+            height: 20px;
             background: rgba(0, 255, 204, 0.3);
             border-radius: 50%;
             position: relative;
@@ -316,17 +329,17 @@
         .step-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 18px; /* Увеличен gap */
-            margin: 28px 0; /* Увеличен отступ */
+            gap: 15px;
+            margin: 25px 0;
         }
         
         .step-button {
             background: linear-gradient(135deg, var(--primary), #003366);
             color: white;
             border: none;
-            border-radius: 12px; /* Увеличен радиус */
-            padding: 18px; /* Увеличен padding */
-            font-size: 18px; /* Увеличен шрифт */
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -356,29 +369,29 @@
         }
         
         .step-value {
-            font-size: 22px; /* Увеличен шрифт */
+            font-size: 20px;
             font-weight: bold;
             display: block;
-            margin-bottom: 8px; /* Увеличен отступ */
+            margin-bottom: 5px;
         }
         
         .step-label {
             display: block;
-            font-size: 16px; /* Увеличен шрифт */
+            font-size: 14px;
         }
         
         .timer {
             display: block;
-            font-size: 14px; /* Увеличен шрифт */
-            margin-top: 8px; /* Увеличен отступ */
+            font-size: 12px;
+            margin-top: 5px;
             color: var(--accent);
         }
         
         .action-buttons {
             display: flex;
             justify-content: space-between;
-            gap: 12px; /* Увеличен gap */
-            margin-top: 25px; /* Увеличен отступ */
+            gap: 10px;
+            margin-top: 20px;
         }
         
         .action-button {
@@ -386,26 +399,16 @@
             background: rgba(0, 50, 100, 0.5);
             color: var(--accent);
             border: 1px solid var(--accent);
-            border-radius: 10px; /* Увеличен радиус */
-            padding: 15px; /* Увеличен padding */
+            border-radius: 8px;
+            padding: 12px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px; /* Увеличен шрифт */
         }
         
         .action-button:hover {
             background: rgba(0, 100, 200, 0.3);
             transform: translateY(-2px);
-        }
-        
-        .action-button .icon {
-            font-size: 28px; /* Увеличен размер */
-            margin-bottom: 8px; /* Увеличен отступ */
         }
         
         .notification {
@@ -417,7 +420,7 @@
             color: white;
             border: 1px solid var(--accent);
             border-radius: 10px;
-            padding: 18px; /* Увеличен padding */
+            padding: 15px;
             max-width: 90%;
             z-index: 1000;
             text-align: center;
@@ -425,92 +428,75 @@
             display: none;
             width: 90%;
             animation: slideDown 0.3s ease-out;
-            font-size: 16px; /* Увеличен шрифт */
         }
         
         .feature-info {
             background: rgba(0, 50, 100, 0.3);
             border: 1px solid var(--accent);
             border-radius: 10px;
-            padding: 12px; /* Увеличен padding */
-            margin-top: 18px; /* Увеличен отступ */
+            padding: 10px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 14px; /* Увеличен шрифт */
+            font-size: 12px;
         }
         
         .profile-info {
             text-align: center;
-            margin-bottom: 25px; /* Увеличен отступ */
+            margin-bottom: 20px;
         }
         
         .avatar {
-            width: 90px; /* Увеличен размер */
-            height: 90px; /* Увеличен размер */
-            margin: 0 auto 18px; /* Увеличен отступ */
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
             background: rgba(0, 255, 204, 0.2);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 45px; /* Увеличен размер */
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
-        }
-        
-        .referral-link-box {
-            background: rgba(0, 30, 60, 0.5);
-            border: 1px solid var(--accent);
-            border-radius: 10px;
-            padding: 18px; /* Увеличен padding */
-            margin: 22px 0; /* Увеличен отступ */
-            word-break: break-all;
-            font-size: 16px; /* Увеличен шрифт */
-            text-align: center;
+            font-size: 40px;
         }
         
         .info-content {
-            padding: 18px; /* Увеличен padding */
+            padding: 15px;
             line-height: 1.6;
-            font-size: 16px; /* Увеличен шрифт */
         }
         
         .info-content h3 {
             color: var(--accent);
-            margin-bottom: 18px; /* Увеличен отступ */
+            margin-bottom: 15px;
             text-align: center;
-            font-size: 22px; /* Увеличен шрифт */
         }
         
         .info-content p {
-            margin-bottom: 18px; /* Увеличен отступ */
+            margin-bottom: 15px;
         }
         
         .info-content ul {
-            padding-left: 25px; /* Увеличен отступ */
-            margin-bottom: 22px; /* Увеличен отступ */
+            padding-left: 20px;
+            margin-bottom: 20px;
         }
         
         .info-content li {
-            margin-bottom: 12px; /* Увеличен отступ */
+            margin-bottom: 10px;
         }
         
         .note-box {
             background: rgba(255, 204, 0, 0.1);
             border: 1px solid var(--warning);
-            border-radius: 10px;
-            padding: 12px; /* Увеличен padding */
-            margin-top: 22px; /* Увеличен отступ */
-            font-size: 15px; /* Увеличен шрифт */
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 20px;
         }
         
         .cheat-warning {
             background: rgba(255, 50, 50, 0.1);
             border: 1px solid var(--error);
-            border-radius: 10px;
-            padding: 15px; /* Увеличен padding */
-            margin: 18px 0; /* Увеличен отступ */
+            border-radius: 8px;
+            padding: 10px;
+            margin: 15px 0;
             text-align: center;
             display: none;
-            font-size: 16px; /* Увеличен шрифт */
         }
         
         /* Animations */
@@ -570,13 +556,7 @@
             <h1>JAMSTEP</h1>
             <div class="testnet-badge">MVP TESTNET VERSION</div>
             
-            <div class="welcome-text">
-                <p>Welcome to JamStep Testnet! 🟢</p>
-                <p>🏃‍♂️ Walk - earn JAMP tokens</p>
-                <p>👥 Invite friends - get rewards</p>
-                <p>🎁 All new users get registration bonus</p>
-                <p>⚠️ This test version rewards only early adopters</p>
-            </div>
+            <div id="welcomeMessage"></div>
             
             <button class="start-btn" onclick="startApp()">START EARNING</button>
         </div>
@@ -585,7 +565,7 @@
         <div class="app-screen" id="mainApp">
             <div class="app-header">
                 <button class="back-btn" onclick="showScreen('welcomeScreen')">←</button>
-                <div class="app-title">JAMSTEP</div>
+                <div class="app-title">JAMSTEP DASHBOARD</div>
                 <div class="testnet-badge" style="margin-top: 10px;">TESTNET VERSION</div>
             </div>
             
@@ -596,7 +576,7 @@
                         <div class="stat-value" id="stepsCounter">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">JAMP EARNED</div>
+                        <div class="stat-label">EARNED JAMP</div>
                         <div class="stat-value" id="jampCounter">0.0000</div>
                     </div>
                 </div>
@@ -612,7 +592,7 @@
             </div>
             
             <div class="cheat-warning" id="cheatWarning">
-                ⚠️ Cheating detected! Your account has temporary restrictions
+                ⚠️ Suspicious activity detected! Your account has been temporarily restricted
             </div>
             
             <div class="step-buttons" id="stepButtons">
@@ -621,25 +601,18 @@
             
             <div class="action-buttons">
                 <button class="action-button" id="profileBtn">
-                    <div class="icon">👤</div>
-                    <div>PROFILE</div>
-                </button>
-                <button class="action-button" id="referralBtn">
-                    <div class="icon">👥</div>
-                    <div>REFERRALS</div>
+                    👤 PROFILE
                 </button>
                 <button class="action-button" id="supportBtn">
-                    <div class="icon">🛠</div>
-                    <div>SUPPORT</div>
+                    🛠 SUPPORT
                 </button>
                 <button class="action-button" id="infoBtn">
-                    <div class="icon">ℹ️</div>
-                    <div>INFO</div>
+                    ℹ️ INFO
                 </button>
             </div>
             
             <div class="feature-info">
-                <p>MVP: Experimental token economics. Early adopters only!</p>
+                <p>MVP: Experimental token economics. For early participants only!</p>
             </div>
         </div>
         
@@ -652,7 +625,7 @@
             
             <div class="profile-info">
                 <div class="avatar">👤</div>
-                <div class="stat-value" id="usernameDisplay">User123</div>
+                <div class="stat-value" id="usernameDisplay">Guest</div>
                 <div class="testnet-badge" style="margin-top: 10px;">LEVEL 1</div>
             </div>
             
@@ -670,12 +643,12 @@
                 
                 <div class="stat-row">
                     <div class="stat-card">
-                        <div class="stat-label">REFERRALS</div>
-                        <div class="stat-value" id="referralCount">0</div>
-                    </div>
-                    <div class="stat-card">
                         <div class="stat-label">STAMINA</div>
                         <div class="stat-value" id="staminaCount">5/5</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">DAILY LIMIT</div>
+                        <div class="stat-value">10,000</div>
                     </div>
                 </div>
             </div>
@@ -685,54 +658,26 @@
             </div>
         </div>
         
-        <!-- Referral Screen -->
-        <div class="app-screen" id="referralScreen">
-            <div class="app-header">
-                <button class="back-btn" onclick="showScreen('mainApp')">←</button>
-                <div class="app-title">REFERRAL PROGRAM</div>
-            </div>
-            
-            <div class="stats-container">
-                <div class="stat-card" style="margin-bottom: 20px;">
-                    <div class="stat-label">YOUR REFERRALS</div>
-                    <div class="stat-value" id="currentReferrals">0/3</div>
-                </div>
-                
-                <div class="stat-label">YOUR REFERRAL LINK</div>
-                <div class="referral-link-box" id="referralLink">Loading...</div>
-                
-                <button class="action-button" onclick="copyReferralLink()" style="margin-top: 15px;">
-                    COPY REFERRAL LINK
-                </button>
-            </div>
-            
-            <div class="feature-info">
-                <p>Invite friends and earn 0.05 JAMP for each referral!</p>
-                <p>Your friends also get 0.05 JAMP bonus when they join.</p>
-                <p>Max 3 referrals per account.</p>
-            </div>
-        </div>
-        
         <!-- Info Screen -->
         <div class="app-screen" id="infoScreen">
             <div class="app-header">
                 <button class="back-btn" onclick="showScreen('mainApp')">←</button>
-                <div class="app-title">IMPORTANT INFO</div>
+                <div class="app-title">IMPORTANT INFORMATION</div>
             </div>
             
             <div class="info-content">
                 <h3>MVP REWARDS PROGRAM</h3>
-                <p>This test version exclusively rewards our first users:</p>
+                <p>This test version is specifically for our early users:</p>
                 
                 <ul>
-                    <li>All earned JAMP will be preserved after main app launch</li>
-                    <li>Rewards distribution after official token listing</li>
-                    <li>Test version becomes read-only after official launch</li>
-                    <li>Only early adopters are eligible for rewards</li>
+                    <li>All earned JAMP will be saved after the main app launch</li>
+                    <li>Rewards distribution will occur after the official token listing</li>
+                    <li>The test version will become read-only after the official launch</li>
+                    <li>Only early participants are eligible for rewards</li>
                 </ul>
                 
                 <div class="note-box">
-                    ⚠️ This is a limited test version. Rewards are only available to the first participants.
+                    ⚠️ This is a limited test version. Rewards are available for early participants only.
                 </div>
             </div>
         </div>
@@ -749,7 +694,6 @@
         const welcomeScreen = document.getElementById('welcomeScreen');
         const mainApp = document.getElementById('mainApp');
         const profileScreen = document.getElementById('profileScreen');
-        const referralScreen = document.getElementById('referralScreen');
         const infoScreen = document.getElementById('infoScreen');
         const stepsCounter = document.getElementById('stepsCounter');
         const jampCounter = document.getElementById('jampCounter');
@@ -759,21 +703,17 @@
         const stepButtonsContainer = document.getElementById('stepButtons');
         const notification = document.getElementById('notification');
         const profileBtn = document.getElementById('profileBtn');
-        const referralBtn = document.getElementById('referralBtn');
         const supportBtn = document.getElementById('supportBtn');
         const infoBtn = document.getElementById('infoBtn');
         const usernameDisplay = document.getElementById('usernameDisplay');
         const totalSteps = document.getElementById('totalSteps');
         const totalJamp = document.getElementById('totalJamp');
-        const referralCount = document.getElementById('referralCount');
         const staminaCount = document.getElementById('staminaCount');
-        const currentReferrals = document.getElementById('currentReferrals');
-        const referralLink = document.getElementById('referralLink');
         const statsContainer = document.getElementById('statsContainer');
         const cheatWarning = document.getElementById('cheatWarning');
+        const welcomeMessage = document.getElementById('welcomeMessage');
         
         // App Configuration
-        const BOT_USERNAME = "JamStep_bot";
         const SUPPORT_USERNAME = "JamMav";
         
         // Reward rates
@@ -801,11 +741,6 @@
             totalJamp: 0.0,
             stamina: 5,
             maxStamina: 5,
-            referrals: 0,
-            maxReferrals: 3,
-            referralCode: null,
-            referrerId: null,
-            referralBonusClaimed: false,
             stepButtons: [
                 { 
                     value: 500, 
@@ -851,26 +786,34 @@
         // Initialize the app
         function initApp() {
             tg.expand();
-            tg.enableClosingConfirmation();
             
             // Get user info from Telegram
-            if (tg.initDataUnsafe.user) {
-                userData.userId = tg.initDataUnsafe.user.id;
-                userData.username = tg.initDataUnsafe.user.username || 
-                                  `${tg.initDataUnsafe.user.first_name}${tg.initDataUnsafe.user.last_name ? ' ' + tg.initDataUnsafe.user.last_name : ''}`;
+            const user = Telegram.WebApp.initDataUnsafe?.user;
+            const startParam = Telegram.WebApp.initDataUnsafe?.start_param;
+            
+            // Generate personalized welcome message
+            let welcomeText = "👋 Welcome to JamStep!<br><br>";
+            
+            if (user) {
+                userData.userId = user.id;
+                const firstName = user.first_name || "User";
+                userData.username = firstName;
                 
-                usernameDisplay.textContent = userData.username;
+                welcomeText = `
+                    👋 Welcome to JamStep, ${firstName}!<br><br>
+                    This is a test version. You earn test JAMP for steps.<br>
+                    New and first users who participate in the test will be rewarded after the main app launch!
+                `;
+            } else {
+                welcomeText = `
+                    👋 Welcome to JamStep!<br><br>
+                    This is a test version. You earn test JAMP for steps.<br>
+                    New and first users who participate in the test will be rewarded after the main app launch!
+                `;
             }
             
-            // Check for referral code in start_param
-            if (tg.initDataUnsafe.start_param) {
-                userData.referrerId = tg.initDataUnsafe.start_param;
-            }
-            
-            // Generate referral code if doesn't exist
-            if (!userData.referralCode) {
-                userData.referralCode = generateReferralCode();
-            }
+            welcomeMessage.innerHTML = welcomeText;
+            usernameDisplay.textContent = userData.username;
             
             // Load saved data
             loadUserData();
@@ -881,17 +824,13 @@
                 saveUserData();
             }
             
-            // Process referral if any
-            processReferral();
-            
             // Initialize step timers
             initStepTimers();
             
             // Show welcome screen
-            welcomeScreen.style.display = 'block';
+            welcomeScreen.style.display = 'flex';
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
-            referralScreen.style.display = 'none';
             infoScreen.style.display = 'none';
             
             // Add event listeners
@@ -902,10 +841,6 @@
         function setupEventListeners() {
             profileBtn.addEventListener('click', () => {
                 showScreen('profileScreen');
-            });
-            
-            referralBtn.addEventListener('click', () => {
-                showScreen('referralScreen');
             });
             
             supportBtn.addEventListener('click', () => {
@@ -925,16 +860,6 @@
             
             // Auto-save on user interaction
             document.addEventListener('click', autoSave);
-        }
-        
-        // Generate referral code
-        function generateReferralCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 8; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return 'JAM-' + result;
         }
         
         // Load user data from localStorage
@@ -982,34 +907,6 @@
         function saveUserData() {
             userData.lastUpdate = new Date().toISOString();
             localStorage.setItem('jamstepData', JSON.stringify(userData));
-        }
-        
-        // Process referral from URL
-        function processReferral() {
-            // Check if bonus already claimed
-            if (userData.referrerId && !userData.referralBonusClaimed) {
-                // Add bonus to new user
-                userData.totalJamp += 0.05;
-                userData.referralBonusClaimed = true;
-                
-                // Add bonus to referrer
-                const referrerData = localStorage.getItem(`referrer_${userData.referrerId}`);
-                if (referrerData) {
-                    const referrer = JSON.parse(referrerData);
-                    referrer.referrals += 1;
-                    referrer.totalJamp += 0.05;
-                    localStorage.setItem(`referrer_${userData.referrerId}`, JSON.stringify(referrer));
-                    
-                    // Update current user if they are the referrer
-                    if (userData.referralCode === userData.referrerId) {
-                        userData.referrals += 1;
-                        userData.totalJamp += 0.05;
-                    }
-                }
-                
-                showNotification("🎉 You received 0.05 JAMP for joining via referral!", "success");
-                saveUserData();
-            }
         }
         
         // Initialize step timers
@@ -1079,24 +976,18 @@
             welcomeScreen.style.display = 'none';
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
-            referralScreen.style.display = 'none';
             infoScreen.style.display = 'none';
             
-            if (screenName === 'welcomeScreen') welcomeScreen.style.display = 'block';
-            else if (screenName === 'mainApp') {
-                mainApp.style.display = 'block';
+            if (screenName === 'welcomeScreen') {
+                welcomeScreen.style.display = 'flex';
+            } else if (screenName === 'mainApp') {
+                mainApp.style.display = 'flex';
                 updateUI();
-            }
-            else if (screenName === 'profileScreen') {
+            } else if (screenName === 'profileScreen') {
+                profileScreen.style.display = 'flex';
                 updateProfileScreen();
-                profileScreen.style.display = 'block';
-            }
-            else if (screenName === 'referralScreen') {
-                updateReferralScreen();
-                referralScreen.style.display = 'block';
-            }
-            else if (screenName === 'infoScreen') {
-                infoScreen.style.display = 'block';
+            } else if (screenName === 'infoScreen') {
+                infoScreen.style.display = 'flex';
             }
         }
         
@@ -1131,22 +1022,7 @@
             usernameDisplay.textContent = userData.username;
             totalSteps.textContent = userData.totalSteps + userData.stepsToday;
             totalJamp.textContent = userData.totalJamp.toFixed(4);
-            referralCount.textContent = userData.referrals;
             staminaCount.textContent = `${userData.stamina}/${userData.maxStamina}`;
-        }
-        
-        // Update referral screen
-        function updateReferralScreen() {
-            // Save referrer data
-            localStorage.setItem(`referrer_${userData.referralCode}`, JSON.stringify({
-                referrals: userData.referrals,
-                totalJamp: userData.totalJamp,
-                userId: userData.userId
-            }));
-            
-            // Update display
-            currentReferrals.textContent = `${userData.referrals}/${userData.maxReferrals}`;
-            referralLink.textContent = `https://t.me/${BOT_USERNAME}?start=ref_${userData.referralCode}`;
         }
         
         // Update stamina display
@@ -1202,20 +1078,20 @@
             
             // Check if button has reached max uses
             if (button.uses >= button.maxUses) {
-                showNotification(`You can only use ${button.value} steps button ${button.maxUses} times per day`, "warning");
+                showNotification(`You can use the ${button.value} steps button only ${button.maxUses} times per day`, "warning");
                 return;
             }
             
             // Check stamina
             if (userData.stamina <= 0) {
-                showNotification("You don't have enough stamina! Wait for recovery.", "warning");
+                showNotification("Not enough stamina! Please wait for recovery", "warning");
                 return;
             }
             
             // Calculate how many steps we can add without exceeding 10,000
             const remainingSteps = 10000 - userData.stepsToday;
             if (remainingSteps <= 0) {
-                showNotification("You've reached the daily step limit of 10,000 steps!", "warning");
+                showNotification("You've reached the daily limit of 10,000 steps!", "warning");
                 return;
             }
             
@@ -1261,7 +1137,7 @@
             
             if (userData.banCount === 1) {
                 userData.banExpiration = Date.now() + 1800000; // 30 minutes
-                showNotification("⚠️ Cheat detected! 30-min ban applied. Next violation: 2.5h ban", "warning");
+                showNotification("⚠️ Cheating detected! 30 min ban. Next violation: 2.5h ban", "warning");
             } 
             else if (userData.banCount === 2) {
                 userData.banExpiration = Date.now() + 9000000; // 2.5 hours (150 minutes)
@@ -1274,18 +1150,6 @@
             
             cheatWarning.style.display = 'block';
             saveUserData();
-        }
-        
-        // Copy referral link to clipboard
-        function copyReferralLink() {
-            const link = `https://t.me/${BOT_USERNAME}?start=ref_${userData.referralCode}`;
-            navigator.clipboard.writeText(link)
-                .then(() => {
-                    showNotification("Referral link copied to clipboard! Send it to friends", "success");
-                })
-                .catch(() => {
-                    showNotification("Failed to copy link. Please copy manually.", "error");
-                });
         }
         
         // Handle support button click
@@ -1303,11 +1167,11 @@
                 userData.supportQuota--;
                 userData.lastSupportContact = now;
                 tg.openTelegramLink(`https://t.me/${SUPPORT_USERNAME}`);
-                showNotification("Contacting support... You have " + userData.supportQuota + " support requests left this week", "info");
+                showNotification("Contacting support... You have " + userData.supportQuota + " requests left this week", "info");
                 saveUserData();
             } else {
                 const nextDate = new Date(userData.lastSupportContact + weekMs);
-                showNotification(`Support quota exhausted. Available after: ${nextDate.toLocaleDateString()}`, "warning");
+                showNotification(`Support request limit exceeded. Available from: ${nextDate.toLocaleDateString()}`, "warning");
             }
         }
         
