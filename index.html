@@ -349,16 +349,6 @@
             margin-top: 20px;
         }
         
-        .cheat-warning {
-            background: rgba(255, 50, 50, 0.1);
-            border: 1px solid var(--error);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 15px 0;
-            text-align: center;
-            display: none;
-        }
-        
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -433,10 +423,6 @@
                 <div class="stamina-container" id="staminaContainer">
                     <!-- Stamina items will be added here -->
                 </div>
-            </div>
-            
-            <div class="cheat-warning" id="cheatWarning">
-                ⚠️ Suspicious activity detected! Your account has been temporarily restricted
             </div>
             
             <div class="step-buttons" id="stepButtons">
@@ -554,7 +540,6 @@
         const totalJamp = document.getElementById('totalJamp');
         const staminaCount = document.getElementById('staminaCount');
         const statsContainer = document.getElementById('statsContainer');
-        const cheatWarning = document.getElementById('cheatWarning');
         const welcomeMessage = document.getElementById('welcomeMessage');
         
         // App Configuration
@@ -590,7 +575,7 @@
                     value: 500, 
                     unlock: 0, 
                     available: false,
-                    maxUses: 1, // ИЗМЕНЕНО: было 2, стало 1
+                    maxUses: 1,
                     uses: 0,
                     timer: null
                 },
@@ -598,7 +583,7 @@
                     value: 1000, 
                     unlock: 0, 
                     available: false,
-                    maxUses: 1, // ИЗМЕНЕНО: было 2, стало 1
+                    maxUses: 1,
                     uses: 0,
                     timer: null
                 },
@@ -606,7 +591,7 @@
                     value: 5000, 
                     unlock: 0, 
                     available: false,
-                    maxUses: 1, // ИЗМЕНЕНО: было 2, стало 1
+                    maxUses: 1,
                     uses: 0,
                     timer: null
                 },
@@ -614,7 +599,7 @@
                     value: 10000, 
                     unlock: 0, 
                     available: false,
-                    maxUses: 1, // ИЗМЕНЕНО: было 2, стало 1
+                    maxUses: 1,
                     uses: 0,
                     timer: null
                 }
@@ -622,9 +607,7 @@
             registrationTime: null,
             lastUpdate: null,
             lastSupportContact: null,
-            supportQuota: 1, // Only 1 support request per week
-            banCount: 0,
-            banExpiration: null
+            supportQuota: 1 // Only 1 support request per week
         };
         
         // Initialize the app
@@ -732,11 +715,6 @@
                 
                 // Apply loaded data
                 userData = data;
-            }
-            
-            // Check ban status
-            if (userData.banExpiration && Date.now() < userData.banExpiration) {
-                cheatWarning.style.display = 'block';
             }
         }
         
@@ -912,13 +890,6 @@
         
         // Submit steps
         function submitSteps(button) {
-            // Check ban status
-            if (userData.banExpiration && Date.now() < userData.banExpiration) {
-                const banTime = Math.ceil((userData.banExpiration - Date.now()) / 60000);
-                showNotification(`Account restricted! Try again in ${banTime} minutes`, "error");
-                return;
-            }
-            
             // Check if button has reached max uses
             if (button.uses >= button.maxUses) {
                 showNotification(`You can use the ${button.value} steps button only ${button.maxUses} times per day`, "warning");
@@ -941,17 +912,6 @@
             // How many steps we can actually add (not more than remaining)
             const stepsToAdd = Math.min(button.value, remainingSteps);
             
-            // Anti-cheat protection
-            if (button.value === 10000 && userData.stepButtons[0].uses > 0) {
-                const lastClick = new Date(userData.lastUpdate);
-                const timeDiff = (Date.now() - lastClick) / 1000;
-                
-                if (timeDiff < 1800) { // 30 minutes
-                    handleCheatAttempt();
-                    return;
-                }
-            }
-            
             // Calculate JAMP reward based on predefined rates
             const jampEarned = REWARD_RATES[button.value] * (stepsToAdd / button.value);
             
@@ -972,27 +932,6 @@
             
             // Update UI
             updateUI();
-        }
-        
-        // Handle cheat attempt
-        function handleCheatAttempt() {
-            userData.banCount++;
-            
-            if (userData.banCount === 1) {
-                userData.banExpiration = Date.now() + 1800000; // 30 minutes
-                showNotification("⚠️ Cheating detected! 30 min ban. Next violation: 2.5h ban", "warning");
-            } 
-            else if (userData.banCount === 2) {
-                userData.banExpiration = Date.now() + 9000000; // 2.5 hours (150 minutes)
-                showNotification("⛔ Final warning! Next violation = PERMANENT BAN", "error");
-            }
-            else {
-                userData.banExpiration = Number.MAX_SAFE_INTEGER; // Permanent ban
-                showNotification("🚫 ACCOUNT BANNED: Cheating detected", "error");
-            }
-            
-            cheatWarning.style.display = 'block';
-            saveUserData();
         }
         
         // Handle support button click (1 request per week)
