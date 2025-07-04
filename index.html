@@ -15,6 +15,7 @@
             --success: #00cc66;
             --warning: #ffcc00;
             --error: #ff3333;
+            --info: #3399ff;
         }
         
         * {
@@ -34,41 +35,38 @@
             background: linear-gradient(135deg, #000428, #004e92);
             color: var(--light);
             display: flex;
-            flex-direction: column;
+            padding: 0;
         }
         
         .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            overflow-y: auto;
-        }
-        
-        /* Все экраны */
-        .screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
         }
         
         /* Welcome Screen */
         .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            gap: 20px;
+            padding: 15px;
         }
         
         .app-logo {
             width: 100px;
             height: 100px;
+            margin-bottom: 20px;
             background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
             animation: pulse 2s infinite;
         }
         
@@ -85,14 +83,17 @@
             color: var(--accent);
             text-shadow: var(--neon-glow);
             font-size: 24px;
+            margin-bottom: 10px;
         }
         
         .testnet-badge {
+            display: inline-block;
             background: rgba(0, 100, 255, 0.2);
             color: var(--accent);
             border: 1px solid var(--accent);
             border-radius: 15px;
-            padding: 8px 16px;
+            padding: 5px 15px;
+            margin: 10px 0;
             font-size: 14px;
             animation: glow 1.5s infinite alternate;
         }
@@ -100,11 +101,11 @@
         #welcomeMessage {
             font-size: 16px;
             line-height: 1.5;
+            margin: 15px 0;
+            padding: 15px;
             background: rgba(0, 30, 60, 0.3);
             border-radius: 10px;
-            padding: 15px;
-            width: 100%;
-            max-width: 400px;
+            max-width: 100%;
         }
         
         .start-btn {
@@ -112,20 +113,30 @@
             color: white;
             border: none;
             border-radius: 25px;
-            padding: 15px 0;
-            font-size: 18px;
+            padding: 12px 30px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: var(--neon-glow);
+            transition: all 0.3s;
             width: 100%;
             max-width: 280px;
+            margin-top: 10px;
         }
         
-        /* App Header */
+        /* Main App */
+        .app-screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            width: 100%;
+            overflow-y: auto;
+        }
+        
         .app-header {
             text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 1px solid rgba(0, 255, 204, 0.3);
             position: relative;
         }
@@ -141,27 +152,34 @@
             cursor: pointer;
         }
         
-        /* Stats */
+        .app-title {
+            color: var(--accent);
+            text-shadow: var(--neon-glow);
+            font-size: 20px;
+            margin-top: 5px;
+        }
+        
         .stats-container {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--accent);
             border-radius: 10px;
             padding: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 15px;
         }
         
         .stat-card {
+            flex: 1;
             text-align: center;
             background: rgba(0, 30, 60, 0.5);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
+            margin: 0 5px;
         }
         
         .stat-label {
@@ -171,9 +189,10 @@
         }
         
         .stat-value {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: white;
+            text-shadow: var(--neon-glow);
         }
         
         .progress-container {
@@ -189,6 +208,7 @@
             height: 100%;
             background: linear-gradient(90deg, var(--primary), var(--accent));
             width: 0%;
+            transition: width 0.8s;
         }
         
         .progress-text {
@@ -220,12 +240,11 @@
             box-shadow: var(--neon-glow);
         }
         
-        /* Step Buttons */
         .step-buttons {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin: 15px 0;
         }
         
         .step-button {
@@ -233,9 +252,10 @@
             color: white;
             border: none;
             border-radius: 10px;
-            padding: 20px;
-            font-size: 18px;
+            padding: 15px;
+            font-size: 16px;
             cursor: pointer;
+            transition: all 0.3s;
             text-align: center;
         }
         
@@ -244,7 +264,7 @@
         }
         
         .step-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             display: block;
             margin-bottom: 5px;
@@ -252,56 +272,46 @@
         
         .step-label {
             display: block;
-            font-size: 16px;
+            font-size: 14px;
         }
         
         .timer {
             display: block;
-            font-size: 14px;
-            margin-top: 8px;
+            font-size: 12px;
+            margin-top: 5px;
             color: var(--accent);
         }
         
-        /* Action Buttons */
         .action-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
+            justify-content: space-between;
             gap: 10px;
-            margin-top: auto;
+            margin-top: 15px;
         }
         
         .action-button {
+            flex: 1;
             background: rgba(0, 50, 100, 0.5);
             color: var(--accent);
             border: 1px solid var(--accent);
             border-radius: 8px;
             padding: 12px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
-            font-size: 14px;
         }
         
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
+        .feature-info {
+            background: rgba(0, 50, 100, 0.3);
             border: 1px solid var(--accent);
-            border-radius: 10px;
-            padding: 15px;
-            z-index: 1000;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
             text-align: center;
-            box-shadow: var(--neon-glow);
-            display: none;
-            width: 90%;
-            max-width: 400px;
+            font-size: 12px;
         }
         
-        /* Profile Screen */
         .profile-info {
             text-align: center;
             margin-bottom: 20px;
@@ -319,9 +329,8 @@
             font-size: 36px;
         }
         
-        /* Info Screen */
         .info-content {
-            padding: 10px;
+            padding: 15px;
             line-height: 1.6;
         }
         
@@ -332,40 +341,45 @@
             font-size: 20px;
         }
         
-        .info-content ul {
-            padding-left: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .info-content li {
-            margin-bottom: 10px;
-        }
-        
         .note-box {
             background: rgba(255, 204, 0, 0.1);
             border: 1px solid var(--warning);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
             margin-top: 20px;
         }
         
-        /* Cheat Warning */
         .cheat-warning {
             background: rgba(255, 50, 50, 0.1);
             border: 1px solid var(--error);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
             margin: 15px 0;
             text-align: center;
             display: none;
         }
         
-        /* Utility Classes */
-        .hidden {
-            display: none;
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        /* Animations */
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translate(-50%, -30px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
         @keyframes pulse {
             0% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
             50% { box-shadow: 0 0 20px rgba(0, 255, 204, 0.6); }
@@ -381,7 +395,7 @@
 <body>
     <div class="container">
         <!-- Welcome Screen -->
-        <div class="screen welcome-screen" id="welcomeScreen">
+        <div class="welcome-screen" id="welcomeScreen">
             <div class="app-logo"></div>
             <h1>JAMSTEP</h1>
             <div class="testnet-badge">MVP TESTNET VERSION</div>
@@ -392,7 +406,7 @@
         </div>
         
         <!-- Main Application -->
-        <div class="screen hidden" id="mainApp">
+        <div class="app-screen" id="mainApp">
             <div class="app-header">
                 <button class="back-btn" onclick="showScreen('welcomeScreen')">←</button>
                 <div class="app-title">JAMSTEP DASHBOARD</div>
@@ -400,7 +414,7 @@
             </div>
             
             <div class="stats-container" id="statsContainer">
-                <div class="stats-grid">
+                <div class="stat-row">
                     <div class="stat-card">
                         <div class="stat-label">TODAY'S STEPS</div>
                         <div class="stat-value" id="stepsCounter">0</div>
@@ -422,7 +436,7 @@
             </div>
             
             <div class="cheat-warning" id="cheatWarning">
-                ⚠️ Suspicious activity detected! Account restricted
+                ⚠️ Suspicious activity detected! Your account has been temporarily restricted
             </div>
             
             <div class="step-buttons" id="stepButtons">
@@ -440,10 +454,14 @@
                     ℹ️ INFO
                 </button>
             </div>
+            
+            <div class="feature-info">
+                <p>MVP: Experimental token economics. For early participants only!</p>
+            </div>
         </div>
         
         <!-- Profile Screen -->
-        <div class="screen hidden" id="profileScreen">
+        <div class="app-screen" id="profileScreen">
             <div class="app-header">
                 <button class="back-btn" onclick="showScreen('mainApp')">←</button>
                 <div class="app-title">YOUR PROFILE</div>
@@ -452,11 +470,11 @@
             <div class="profile-info">
                 <div class="avatar">👤</div>
                 <div class="stat-value" id="usernameDisplay">Guest</div>
-                <div class="testnet-badge" style="margin-top: 10px;">LEVEL 1</div>
+                <div class="testnet-badge" style="margin-top: 8px;">LEVEL 1</div>
             </div>
             
             <div class="stats-container">
-                <div class="stats-grid">
+                <div class="stat-row">
                     <div class="stat-card">
                         <div class="stat-label">TOTAL STEPS</div>
                         <div class="stat-value" id="totalSteps">0</div>
@@ -467,7 +485,7 @@
                     </div>
                 </div>
                 
-                <div class="stats-grid">
+                <div class="stat-row">
                     <div class="stat-card">
                         <div class="stat-label">STAMINA</div>
                         <div class="stat-value" id="staminaCount">5/5</div>
@@ -485,7 +503,7 @@
         </div>
         
         <!-- Info Screen -->
-        <div class="screen hidden" id="infoScreen">
+        <div class="app-screen" id="infoScreen">
             <div class="app-header">
                 <button class="back-btn" onclick="showScreen('mainApp')">←</button>
                 <div class="app-title">IMPORTANT INFORMATION</div>
@@ -496,72 +514,66 @@
                 <p>This test version is specifically for our early users:</p>
                 
                 <ul>
-                    <li>All earned JAMP will be saved after main app launch</li>
-                    <li>Rewards distribution after official token listing</li>
-                    <li>Test version becomes read-only after official launch</li>
+                    <li>All earned JAMP will be saved after the main app launch</li>
+                    <li>Rewards distribution will occur after the official token listing</li>
+                    <li>The test version will become read-only after the official launch</li>
                     <li>Only early participants are eligible for rewards</li>
                 </ul>
                 
                 <div class="note-box">
-                    ⚠️ Limited test version. Rewards for early participants only.
+                    ⚠️ This is a limited test version. Rewards are available for early participants only.
                 </div>
             </div>
         </div>
+        
+        <!-- Notification -->
+        <div class="notification" id="notification"></div>
     </div>
-
-    <!-- Notification -->
-    <div class="notification" id="notification"></div>
 
     <script>
         // Telegram Web App initialization
         const tg = window.Telegram.WebApp;
         
         // DOM Elements
-        const screens = {
-            welcome: document.getElementById('welcomeScreen'),
-            main: document.getElementById('mainApp'),
-            profile: document.getElementById('profileScreen'),
-            info: document.getElementById('infoScreen')
-        };
-        
-        const elements = {
-            stepsCounter: document.getElementById('stepsCounter'),
-            jampCounter: document.getElementById('jampCounter'),
-            progressBar: document.getElementById('progressBar'),
-            progressText: document.getElementById('progressText'),
-            staminaContainer: document.getElementById('staminaContainer'),
-            stepButtonsContainer: document.getElementById('stepButtons'),
-            notification: document.getElementById('notification'),
-            usernameDisplay: document.getElementById('usernameDisplay'),
-            totalSteps: document.getElementById('totalSteps'),
-            totalJamp: document.getElementById('totalJamp'),
-            staminaCount: document.getElementById('staminaCount'),
-            cheatWarning: document.getElementById('cheatWarning'),
-            welcomeMessage: document.getElementById('welcomeMessage')
-        };
-        
-        // Buttons
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const mainApp = document.getElementById('mainApp');
+        const profileScreen = document.getElementById('profileScreen');
+        const infoScreen = document.getElementById('infoScreen');
+        const stepsCounter = document.getElementById('stepsCounter');
+        const jampCounter = document.getElementById('jampCounter');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const staminaContainer = document.getElementById('staminaContainer');
+        const stepButtonsContainer = document.getElementById('stepButtons');
+        const notification = document.getElementById('notification');
         const profileBtn = document.getElementById('profileBtn');
         const supportBtn = document.getElementById('supportBtn');
         const infoBtn = document.getElementById('infoBtn');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const totalSteps = document.getElementById('totalSteps');
+        const totalJamp = document.getElementById('totalJamp');
+        const staminaCount = document.getElementById('staminaCount');
+        const statsContainer = document.getElementById('statsContainer');
+        const cheatWarning = document.getElementById('cheatWarning');
+        const welcomeMessage = document.getElementById('welcomeMessage');
         
         // App Configuration
         const SUPPORT_USERNAME = "JamMav";
         
         // Reward rates
         const REWARD_RATES = {
-            500: 0.015,
-            1000: 0.03,
-            5000: 0.15,
-            10000: 0.3
+            500: 0.015,   // 0.015 JAMP for 500 steps
+            1000: 0.03,   // 0.03 JAMP for 1000 steps
+            5000: 0.15,   // 0.15 JAMP for 5000 steps
+            10000: 0.3    // 0.3 JAMP for 10000 steps
         };
         
-        // Unlock times in seconds
+        // Unlock times in seconds (NEW TIMES)
         const UNLOCK_TIMES = {
-            500: 420,    // 7 minutes
-            1000: 600,   // 10 minutes
-            5000: 1800,  // 30 minutes
-            10000: 3600  // 60 minutes
+            500: 360,    // 6 minutes
+            1000: 720,   // 12 minutes
+            5000: 2700,  // 45 minutes
+            10000: 5400  // 90 minutes (1.5 hours)
         };
         
         // App State
@@ -574,15 +586,43 @@
             stamina: 5,
             maxStamina: 5,
             stepButtons: [
-                { value: 500, unlock: 0, available: false, maxUses: 2, uses: 0, timer: null },
-                { value: 1000, unlock: 0, available: false, maxUses: 1, uses: 0, timer: null },
-                { value: 5000, unlock: 0, available: false, maxUses: 1, uses: 0, timer: null },
-                { value: 10000, unlock: 0, available: false, maxUses: 1, uses: 0, timer: null }
+                { 
+                    value: 500, 
+                    unlock: 0, 
+                    available: false,
+                    maxUses: 2, // Max 2 uses per day
+                    uses: 0,
+                    timer: null
+                },
+                { 
+                    value: 1000, 
+                    unlock: 0, 
+                    available: false,
+                    maxUses: 2, // Max 2 uses per day
+                    uses: 0,
+                    timer: null
+                },
+                { 
+                    value: 5000, 
+                    unlock: 0, 
+                    available: false,
+                    maxUses: 2, // Max 2 uses per day
+                    uses: 0,
+                    timer: null
+                },
+                { 
+                    value: 10000, 
+                    unlock: 0, 
+                    available: false,
+                    maxUses: 2, // Max 2 uses per day
+                    uses: 0,
+                    timer: null
+                }
             ],
             registrationTime: null,
             lastUpdate: null,
             lastSupportContact: null,
-            supportQuota: 2,
+            supportQuota: 1, // Only 1 support request per week
             banCount: 0,
             banExpiration: null
         };
@@ -591,89 +631,134 @@
         function initApp() {
             tg.expand();
             
-            // Get user info
+            // Get user info from Telegram
             const user = Telegram.WebApp.initDataUnsafe?.user;
+            const startParam = Telegram.WebApp.initDataUnsafe?.start_param;
+            
+            // Generate personalized welcome message
             let welcomeText = "👋 Welcome to JamStep!<br><br>";
             
             if (user) {
                 userData.userId = user.id;
-                userData.username = user.first_name || "User";
-                welcomeText = `👋 Welcome to JamStep, ${userData.username}!<br><br>`;
+                const firstName = user.first_name || "User";
+                userData.username = firstName;
+                
+                welcomeText = `
+                    👋 Welcome to JamStep, ${firstName}!<br><br>
+                    This is a test version. You earn test JAMP for steps.<br>
+                    New and first users who participate in the test will be rewarded after the main app launch!
+                `;
+            } else {
+                welcomeText = `
+                    👋 Welcome to JamStep!<br><br>
+                    This is a test version. You earn test JAMP for steps.<br>
+                    New and first users who participate in the test will be rewarded after the main app launch!
+                `;
             }
             
-            welcomeText += "This is a test version. Earn test JAMP for steps.<br>";
-            welcomeText += "Early participants will be rewarded after main app launch!";
-            
-            elements.welcomeMessage.innerHTML = welcomeText;
-            elements.usernameDisplay.textContent = userData.username;
+            welcomeMessage.innerHTML = welcomeText;
+            usernameDisplay.textContent = userData.username;
             
             // Load saved data
             loadUserData();
             
-            // Initialize
+            // If new user, set registration time
             if (!userData.registrationTime) {
                 userData.registrationTime = Date.now();
+                saveUserData();
             }
             
+            // Initialize step timers (block buttons for new users)
             initStepTimers();
+            
+            // Show welcome screen
+            welcomeScreen.style.display = 'flex';
+            mainApp.style.display = 'none';
+            profileScreen.style.display = 'none';
+            infoScreen.style.display = 'none';
+            
+            // Add event listeners
             setupEventListeners();
-            saveUserData();
         }
         
         // Setup event listeners
         function setupEventListeners() {
-            profileBtn.addEventListener('click', () => showScreen('profile'));
-            supportBtn.addEventListener('click', handleSupportClick);
-            infoBtn.addEventListener('click', () => showScreen('info'));
-            
-            tg.onEvent('closing', saveUserData);
-            document.addEventListener('click', () => {
-                setTimeout(saveUserData, 500);
+            profileBtn.addEventListener('click', () => {
+                showScreen('profileScreen');
             });
+            
+            supportBtn.addEventListener('click', () => {
+                handleSupportClick();
+            });
+            
+            infoBtn.addEventListener('click', () => {
+                showScreen('infoScreen');
+            });
+            
+            // Save data when closing
+            tg.onEvent('viewportChanged', (e) => {
+                if (e.isStateStable) saveUserData();
+            });
+            
+            tg.onEvent('closing', () => saveUserData());
+            
+            // Auto-save on user interaction
+            document.addEventListener('click', autoSave);
         }
         
-        // Load user data
+        // Load user data from localStorage
         function loadUserData() {
             const savedData = localStorage.getItem('jamstepData');
             if (savedData) {
-                try {
-                    const data = JSON.parse(savedData);
+                const data = JSON.parse(savedData);
+                
+                // Check if we need to reset daily data
+                const now = new Date();
+                const lastUpdate = new Date(data.lastUpdate);
+                const isNewDay = now.getDate() !== lastUpdate.getDate();
+                
+                if (isNewDay) {
+                    // Reset daily values
+                    data.stepsToday = 0;
+                    data.stamina = data.maxStamina;
                     
-                    // Reset daily data if new day
-                    const now = new Date();
-                    const lastUpdate = data.lastUpdate ? new Date(data.lastUpdate) : null;
+                    // Reset button uses
+                    data.stepButtons.forEach(btn => {
+                        btn.uses = 0;
+                    });
                     
-                    if (lastUpdate && now.getDate() !== lastUpdate.getDate()) {
-                        data.stepsToday = 0;
-                        data.stamina = data.maxStamina;
-                        data.stepButtons.forEach(btn => btn.uses = 0);
-                        data.supportQuota = 2;
-                    }
-                    
-                    userData = {...userData, ...data};
-                    
-                    // Check ban status
-                    if (userData.banExpiration && Date.now() < userData.banExpiration) {
-                        elements.cheatWarning.style.display = 'block';
-                    }
-                } catch (e) {
-                    console.error("Failed to load user data:", e);
+                    // DO NOT reset support quota here (only weekly)
                 }
+                
+                // Apply loaded data
+                userData = data;
+            }
+            
+            // Check ban status
+            if (userData.banExpiration && Date.now() < userData.banExpiration) {
+                cheatWarning.style.display = 'block';
             }
         }
         
-        // Save user data
+        // Auto-save user data
+        function autoSave() {
+            clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(saveUserData, 1000);
+        }
+        
+        // Save user data to localStorage
         function saveUserData() {
             userData.lastUpdate = new Date().toISOString();
             localStorage.setItem('jamstepData', JSON.stringify(userData));
         }
         
-        // Initialize step timers
+        // Initialize step timers (block buttons for new users)
         function initStepTimers() {
             const now = Date.now();
             const elapsed = Math.floor((now - userData.registrationTime) / 1000);
             
             userData.stepButtons.forEach(button => {
+                // Calculate remaining unlock time
                 const remaining = UNLOCK_TIMES[button.value] - elapsed;
                 
                 if (remaining <= 0) {
@@ -687,15 +772,18 @@
             });
         }
         
-        // Start unlock timer
+        // Start unlock timer for a button
         function startUnlockTimer(button) {
-            if (button.timer) clearInterval(button.timer);
+            if (button.timer) {
+                clearInterval(button.timer);
+            }
             
             button.timer = setInterval(() => {
                 button.unlock--;
                 
                 if (button.unlock <= 0) {
                     clearInterval(button.timer);
+                    button.timer = null;
                     button.available = true;
                     updateStepButtons();
                 } else {
@@ -709,75 +797,90 @@
             const button = userData.stepButtons.find(b => b.value === value);
             if (!button) return;
             
-            const buttonEl = [...document.querySelectorAll('.step-button')].find(
-                el => el.querySelector('.step-value').textContent === String(value)
-            );
-            
-            if (buttonEl) {
-                const timerEl = buttonEl.querySelector('.timer');
-                if (timerEl) {
-                    timerEl.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
+            const buttonEls = document.querySelectorAll('.step-button');
+            buttonEls.forEach(el => {
+                if (el.querySelector('.step-value').textContent === String(value)) {
+                    const timerEl = el.querySelector('.timer');
+                    if (timerEl) {
+                        timerEl.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
+                    }
                 }
-            }
+            });
         }
         
-        // Start main app
+        // Start the main application
         function startApp() {
-            showScreen('main');
+            showScreen('mainApp');
             updateUI();
         }
         
         // Show specific screen
         function showScreen(screenName) {
-            Object.values(screens).forEach(screen => {
-                screen.classList.add('hidden');
-            });
+            welcomeScreen.style.display = 'none';
+            mainApp.style.display = 'none';
+            profileScreen.style.display = 'none';
+            infoScreen.style.display = 'none';
             
-            const screen = screens[screenName];
-            if (screen) {
-                screen.classList.remove('hidden');
-                
-                if (screenName === 'main') updateUI();
-                if (screenName === 'profile') updateProfileScreen();
+            if (screenName === 'welcomeScreen') {
+                welcomeScreen.style.display = 'flex';
+            } else if (screenName === 'mainApp') {
+                mainApp.style.display = 'flex';
+                updateUI();
+            } else if (screenName === 'profileScreen') {
+                profileScreen.style.display = 'flex';
+                updateProfileScreen();
+            } else if (screenName === 'infoScreen') {
+                infoScreen.style.display = 'flex';
             }
         }
         
-        // Update UI
+        // Update the UI with current data
         function updateUI() {
-            elements.stepsCounter.textContent = userData.stepsToday;
-            elements.jampCounter.textContent = userData.totalJamp.toFixed(4);
+            // Update stats
+            stepsCounter.textContent = userData.stepsToday;
+            jampCounter.textContent = userData.totalJamp.toFixed(4);
             
+            // Update progress
             const progress = Math.min((userData.stepsToday / 10000) * 100, 100);
-            elements.progressBar.style.width = `${progress}%`;
-            elements.progressText.textContent = userData.stepsToday >= 10000 
-                ? "DAILY LIMIT REACHED" 
-                : `${Math.round(progress)}%`;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
             
+            // Update progress bar style if limit reached
+            if (userData.stepsToday >= 10000) {
+                statsContainer.classList.add('limit-reached');
+                progressText.textContent = "DAILY LIMIT REACHED";
+            } else {
+                statsContainer.classList.remove('limit-reached');
+            }
+            
+            // Update stamina
             updateStaminaUI();
+            
+            // Update step buttons
             updateStepButtons();
         }
         
         // Update profile screen
         function updateProfileScreen() {
-            elements.usernameDisplay.textContent = userData.username;
-            elements.totalSteps.textContent = userData.totalSteps + userData.stepsToday;
-            elements.totalJamp.textContent = userData.totalJamp.toFixed(4);
-            elements.staminaCount.textContent = `${userData.stamina}/${userData.maxStamina}`;
+            usernameDisplay.textContent = userData.username;
+            totalSteps.textContent = userData.totalSteps + userData.stepsToday;
+            totalJamp.textContent = userData.totalJamp.toFixed(4);
+            staminaCount.textContent = `${userData.stamina}/${userData.maxStamina}`;
         }
         
-        // Update stamina UI
+        // Update stamina display
         function updateStaminaUI() {
-            elements.staminaContainer.innerHTML = '';
+            staminaContainer.innerHTML = '';
             for (let i = 0; i < userData.maxStamina; i++) {
-                const item = document.createElement('div');
-                item.className = `stamina-item ${i < userData.stamina ? 'active' : ''}`;
-                elements.staminaContainer.appendChild(item);
+                const staminaItem = document.createElement('div');
+                staminaItem.className = `stamina-item ${i < userData.stamina ? 'active' : ''}`;
+                staminaContainer.appendChild(staminaItem);
             }
         }
         
         // Update step buttons
         function updateStepButtons() {
-            elements.stepButtonsContainer.innerHTML = '';
+            stepButtonsContainer.innerHTML = '';
             
             userData.stepButtons.forEach(button => {
                 const buttonEl = document.createElement('button');
@@ -794,64 +897,80 @@
                     buttonEl.addEventListener('click', () => submitSteps(button));
                 }
                 
-                elements.stepButtonsContainer.appendChild(buttonEl);
+                stepButtonsContainer.appendChild(buttonEl);
             });
         }
         
-        // Format time
+        // Format time (seconds to HH:MM:SS)
         function formatTime(seconds) {
             const hrs = Math.floor(seconds / 3600);
             const mins = Math.floor((seconds % 3600) / 60);
             const secs = seconds % 60;
+            
             return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
         
         // Submit steps
         function submitSteps(button) {
-            // Validation checks
+            // Check ban status
             if (userData.banExpiration && Date.now() < userData.banExpiration) {
                 const banTime = Math.ceil((userData.banExpiration - Date.now()) / 60000);
                 showNotification(`Account restricted! Try again in ${banTime} minutes`, "error");
                 return;
             }
             
+            // Check if button has reached max uses
             if (button.uses >= button.maxUses) {
-                showNotification(`Max uses reached for ${button.value} steps`, "warning");
+                showNotification(`You can use the ${button.value} steps button only ${button.maxUses} times per day`, "warning");
                 return;
             }
             
+            // Check stamina
             if (userData.stamina <= 0) {
-                showNotification("Not enough stamina! Wait for recovery", "warning");
+                showNotification("Not enough stamina! Please wait for recovery", "warning");
                 return;
             }
             
+            // Calculate how many steps we can add without exceeding 10,000
             const remainingSteps = 10000 - userData.stepsToday;
             if (remainingSteps <= 0) {
-                showNotification("Daily limit reached!", "warning");
+                showNotification("You've reached the daily limit of 10,000 steps!", "warning");
                 return;
             }
             
-            // Anti-cheat
+            // How many steps we can actually add (not more than remaining)
+            const stepsToAdd = Math.min(button.value, remainingSteps);
+            
+            // Anti-cheat protection
             if (button.value === 10000 && userData.stepButtons[0].uses > 0) {
                 const lastClick = new Date(userData.lastUpdate);
-                if ((Date.now() - lastClick) / 1000 < 1800) {
+                const timeDiff = (Date.now() - lastClick) / 1000;
+                
+                if (timeDiff < 1800) { // 30 minutes
                     handleCheatAttempt();
                     return;
                 }
             }
             
-            // Process steps
-            const stepsToAdd = Math.min(button.value, remainingSteps);
+            // Calculate JAMP reward based on predefined rates
             const jampEarned = REWARD_RATES[button.value] * (stepsToAdd / button.value);
             
+            // Update user data
             userData.stepsToday += stepsToAdd;
             userData.totalJamp += jampEarned;
             userData.stamina -= 1;
             button.uses += 1;
+            
+            // Lock the button until next day
             button.available = false;
             
+            // Save data
             saveUserData();
+            
+            // Show success message
             showNotification(`✅ ${stepsToAdd} steps submitted! Earned ${jampEarned.toFixed(4)} JAMP`, "success");
+            
+            // Update UI
             updateUI();
         }
         
@@ -860,28 +979,30 @@
             userData.banCount++;
             
             if (userData.banCount === 1) {
-                userData.banExpiration = Date.now() + 1800000; // 30 min
-                showNotification("⚠️ Cheating detected! 30 min ban", "warning");
-            } else if (userData.banCount === 2) {
-                userData.banExpiration = Date.now() + 9000000; // 2.5 hours
-                showNotification("⛔ Final warning! Next = PERMANENT BAN", "error");
-            } else {
-                userData.banExpiration = Number.MAX_SAFE_INTEGER; // Permanent
-                showNotification("🚫 ACCOUNT BANNED", "error");
+                userData.banExpiration = Date.now() + 1800000; // 30 minutes
+                showNotification("⚠️ Cheating detected! 30 min ban. Next violation: 2.5h ban", "warning");
+            } 
+            else if (userData.banCount === 2) {
+                userData.banExpiration = Date.now() + 9000000; // 2.5 hours (150 minutes)
+                showNotification("⛔ Final warning! Next violation = PERMANENT BAN", "error");
+            }
+            else {
+                userData.banExpiration = Number.MAX_SAFE_INTEGER; // Permanent ban
+                showNotification("🚫 ACCOUNT BANNED: Cheating detected", "error");
             }
             
-            elements.cheatWarning.style.display = 'block';
+            cheatWarning.style.display = 'block';
             saveUserData();
         }
         
-        // Handle support
+        // Handle support button click (1 request per week)
         function handleSupportClick() {
             const now = Date.now();
-            const weekMs = 7 * 24 * 60 * 60 * 1000;
+            const weekMs = 7 * 24 * 60 * 60 * 1000; // 7 days
             
-            // Reset quota if needed
+            // Reset quota if it's been more than a week
             if (!userData.lastSupportContact || (now - userData.lastSupportContact) > weekMs) {
-                userData.supportQuota = 2;
+                userData.supportQuota = 1;
                 userData.lastSupportContact = now;
             }
             
@@ -889,37 +1010,41 @@
                 userData.supportQuota--;
                 userData.lastSupportContact = now;
                 tg.openTelegramLink(`https://t.me/${SUPPORT_USERNAME}`);
-                showNotification(`Contacting support... ${userData.supportQuota} requests left`, "info");
+                showNotification("Contacting support... You have " + userData.supportQuota + " requests left this week", "info");
                 saveUserData();
             } else {
                 const nextDate = new Date(userData.lastSupportContact + weekMs);
-                showNotification(`Limit exceeded. Available after ${nextDate.toLocaleDateString()}`, "warning");
+                showNotification(`Support request limit exceeded. Available from: ${nextDate.toLocaleDateString()}`, "warning");
             }
         }
         
         // Show notification
         function showNotification(message, type = "info") {
-            elements.notification.textContent = message;
-            elements.notification.style.display = 'block';
+            notification.textContent = message;
+            notification.style.display = 'block';
             
-            // Set color based on type
-            const colors = {
-                error: ['rgba(255, 50, 50, 0.8)', '#ff0000'],
-                success: ['rgba(50, 200, 50, 0.8)', '#00ff00'],
-                warning: ['rgba(255, 200, 50, 0.8)', '#ffff00'],
-                info: ['rgba(50, 50, 200, 0.8)', '#0000ff']
-            };
+            // Set notification color based on type
+            if (type === "error") {
+                notification.style.backgroundColor = 'rgba(255, 50, 50, 0.8)';
+                notification.style.borderColor = '#ff0000';
+            } else if (type === "success") {
+                notification.style.backgroundColor = 'rgba(50, 200, 50, 0.8)';
+                notification.style.borderColor = '#00ff00';
+            } else if (type === "warning") {
+                notification.style.backgroundColor = 'rgba(255, 200, 50, 0.8)';
+                notification.style.borderColor = '#ffff00';
+            } else {
+                notification.style.backgroundColor = 'rgba(50, 50, 200, 0.8)';
+                notification.style.borderColor = '#0000ff';
+            }
             
-            const [bg, border] = colors[type] || colors.info;
-            elements.notification.style.backgroundColor = bg;
-            elements.notification.style.borderColor = border;
-            
+            // Auto-hide after 5 seconds
             setTimeout(() => {
-                elements.notification.style.display = 'none';
+                notification.style.display = 'none';
             }, 5000);
         }
         
-        // Initialize app
+        // Initialize the app when page loads
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
