@@ -651,7 +651,7 @@
                 saveUserData();
             }
             
-            // Initialize step timers (block buttons for new users)
+            // Initialize step timers
             initStepTimers();
             
             // Show welcome screen
@@ -696,21 +696,31 @@
                 const data = JSON.parse(savedData);
                 
                 // Check if we need to reset daily data
-                const now = new Date();
-                const lastUpdate = new Date(data.lastUpdate);
-                const isNewDay = now.getDate() !== lastUpdate.getDate();
+                let isNewDay = false;
+                if (data.lastUpdate) {
+                    try {
+                        const lastUpdateDate = new Date(data.lastUpdate);
+                        const nowDate = new Date();
+                        isNewDay = nowDate.toDateString() !== lastUpdateDate.toDateString();
+                    } catch(e) {
+                        console.error("Date parsing error", e);
+                        isNewDay = false;
+                    }
+                }
                 
                 if (isNewDay) {
                     // Reset daily values
                     data.stepsToday = 0;
                     data.stamina = data.maxStamina;
                     
-                    // Reset button uses
+                    // Reset button uses and unlock timers
                     data.stepButtons.forEach(btn => {
                         btn.uses = 0;
+                        if (btn.timer) {
+                            clearInterval(btn.timer);
+                            btn.timer = null;
+                        }
                     });
-                    
-                    // DO NOT reset support quota here (only weekly)
                 }
                 
                 // Apply loaded data
@@ -730,12 +740,18 @@
             localStorage.setItem('jamstepData', JSON.stringify(userData));
         }
         
-        // Initialize step timers (block buttons for new users)
+        // Initialize step timers
         function initStepTimers() {
             const now = Date.now();
             const elapsed = Math.floor((now - userData.registrationTime) / 1000);
             
             userData.stepButtons.forEach(button => {
+                // Clear any existing timer
+                if (button.timer) {
+                    clearInterval(button.timer);
+                    button.timer = null;
+                }
+                
                 // Calculate remaining unlock time
                 const remaining = UNLOCK_TIMES[button.value] - elapsed;
                 
