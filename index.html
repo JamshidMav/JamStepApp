@@ -573,42 +573,42 @@
             stepButtons: [
                 { 
                     value: 500, 
-                    unlock: 0, 
                     available: false,
                     maxUses: 1,
                     uses: 0,
-                    timer: null
+                    firstUnlockTime: null
                 },
                 { 
                     value: 1000, 
-                    unlock: 0, 
                     available: false,
                     maxUses: 1,
                     uses: 0,
-                    timer: null
+                    firstUnlockTime: null
                 },
                 { 
                     value: 5000, 
-                    unlock: 0, 
                     available: false,
                     maxUses: 1,
                     uses: 0,
-                    timer: null
+                    firstUnlockTime: null
                 },
                 { 
                     value: 10000, 
-                    unlock: 0, 
                     available: false,
                     maxUses: 1,
                     uses: 0,
-                    timer: null
+                    firstUnlockTime: null
                 }
             ],
             registrationTime: null,
             lastUpdate: null,
             lastSupportContact: null,
-            supportQuota: 1 // Only 1 support request per week
+            supportQuota: 1,
+            dailySessionStart: null
         };
+
+        // Active timers for visual countdown
+        const activeTimers = {};
         
         // Initialize the app
         function initApp() {
@@ -651,8 +651,8 @@
                 saveUserData();
             }
             
-            // Initialize step timers
-            initStepTimers();
+            // Check for new day and reset if needed
+            checkNewDay();
             
             // Show welcome screen
             welcomeScreen.style.display = 'flex';
@@ -662,6 +662,38 @@
             
             // Add event listeners
             setupEventListeners();
+        }
+        
+        // Check for new day and reset daily data
+        function checkNewDay() {
+            const today = new Date().toDateString();
+            const lastDay = userData.lastUpdate ? new Date(userData.lastUpdate).toDateString() : null;
+            
+            if (!lastDay || today !== lastDay) {
+                // New day - reset daily data
+                userData.stepsToday = 0;
+                userData.stamina = userData.maxStamina;
+                userData.dailySessionStart = new Date().toISOString();
+                
+                // Reset button uses and unlock timers
+                userData.stepButtons.forEach(btn => {
+                    btn.uses = 0;
+                    btn.available = false;
+                    btn.firstUnlockTime = null;
+                });
+                
+                // Clear all active timers
+                for (const value in activeTimers) {
+                    clearInterval(activeTimers[value]);
+                    delete activeTimers[value];
+                }
+                
+                saveUserData();
+            } else if (!userData.dailySessionStart) {
+                // If same day but no session start time, set it
+                userData.dailySessionStart = userData.lastUpdate || new Date().toISOString();
+                saveUserData();
+            }
         }
         
         // Setup event listeners
@@ -683,7 +715,14 @@
                 if (e.isStateStable) saveUserData();
             });
             
-            tg.onEvent('closing', () => saveUserData());
+            tg.onEvent('closing', () => {
+                // Clear all active timers
+                for (const value in activeTimers) {
+                    clearInterval(activeTimers[value]);
+                    delete activeTimers[value];
+                }
+                saveUserData();
+            });
             
             // Auto-save on user interaction
             document.addEventListener('click', autoSave);
@@ -694,36 +733,6 @@
             const savedData = localStorage.getItem('jamstepData');
             if (savedData) {
                 const data = JSON.parse(savedData);
-                
-                // Check if we need to reset daily data
-                let isNewDay = false;
-                if (data.lastUpdate) {
-                    try {
-                        const lastUpdateDate = new Date(data.lastUpdate);
-                        const nowDate = new Date();
-                        isNewDay = nowDate.toDateString() !== lastUpdateDate.toDateString();
-                    } catch(e) {
-                        console.error("Date parsing error", e);
-                        isNewDay = false;
-                    }
-                }
-                
-                if (isNewDay) {
-                    // Reset daily values
-                    data.stepsToday = 0;
-                    data.stamina = data.maxStamina;
-                    
-                    // Reset button uses and unlock timers
-                    data.stepButtons.forEach(btn => {
-                        btn.uses = 0;
-                        if (btn.timer) {
-                            clearInterval(btn.timer);
-                            btn.timer = null;
-                        }
-                    });
-                }
-                
-                // Apply loaded data
                 userData = data;
             }
         }
@@ -740,63 +749,70 @@
             localStorage.setItem('jamstepData', JSON.stringify(userData));
         }
         
-        // Initialize step timers
+        // Initialize step timers when app starts
         function initStepTimers() {
-            const now = Date.now();
-            const elapsed = Math.floor((now - userData.registrationTime) / 1000);
+            const now = new Date();
+            const sessionStart = new Date(userData.dailySessionStart || userData.registrationTime || now);
+            const elapsedSeconds = Math.floor((now - sessionStart) / 1000);
             
             userData.stepButtons.forEach(button => {
-                // Clear any existing timer
-                if (button.timer) {
-                    clearInterval(button.timer);
-                    button.timer = null;
+                // If first unlock time not set, set it to session start
+                if (!button.firstUnlockTime) {
+                    button.firstUnlockTime = sessionStart.toISOString();
                 }
                 
-                // Calculate remaining unlock time
-                const remaining = UNLOCK_TIMES[button.value] - elapsed;
+                const unlockTime = UNLOCK_TIMES[button.value];
+                const timePassed = elapsedSeconds;
                 
-                if (remaining <= 0) {
+                if (timePassed >= unlockTime) {
                     button.available = true;
-                    button.unlock = 0;
                 } else {
                     button.available = false;
-                    button.unlock = remaining;
-                    startUnlockTimer(button);
+                    // Start visual timer for countdown
+                    startVisualTimer(button.value, unlockTime - timePassed);
                 }
             });
+            
+            saveUserData();
         }
         
-        // Start unlock timer for a button
-        function startUnlockTimer(button) {
-            if (button.timer) {
-                clearInterval(button.timer);
+        // Start visual timer for countdown display
+        function startVisualTimer(value, timeLeft) {
+            // Clear existing timer if any
+            if (activeTimers[value]) {
+                clearInterval(activeTimers[value]);
             }
             
-            button.timer = setInterval(() => {
-                button.unlock--;
+            // Update immediately
+            updateStepButtonText(value, timeLeft);
+            
+            // Start new timer
+            activeTimers[value] = setInterval(() => {
+                timeLeft--;
                 
-                if (button.unlock <= 0) {
-                    clearInterval(button.timer);
-                    button.timer = null;
-                    button.available = true;
-                    updateStepButtons();
+                if (timeLeft <= 0) {
+                    clearInterval(activeTimers[value]);
+                    delete activeTimers[value];
+                    // Find and update the button
+                    const button = userData.stepButtons.find(b => b.value === value);
+                    if (button) {
+                        button.available = true;
+                        updateStepButtons();
+                    }
                 } else {
-                    updateStepButtonText(button.value);
+                    updateStepButtonText(value, timeLeft);
                 }
             }, 1000);
         }
         
         // Update step button text
-        function updateStepButtonText(value) {
-            const button = userData.stepButtons.find(b => b.value === value);
-            if (!button) return;
-            
+        function updateStepButtonText(value, timeLeft) {
             const buttonEls = document.querySelectorAll('.step-button');
             buttonEls.forEach(el => {
                 if (el.querySelector('.step-value').textContent === String(value)) {
                     const timerEl = el.querySelector('.timer');
                     if (timerEl) {
-                        timerEl.textContent = `Unlocks in: ${formatTime(button.unlock)}`;
+                        timerEl.textContent = `Unlocks in: ${formatTime(timeLeft)}`;
                     }
                 }
             });
@@ -805,6 +821,7 @@
         // Start the main application
         function startApp() {
             showScreen('mainApp');
+            initStepTimers();
             updateUI();
         }
         
@@ -880,10 +897,25 @@
                 const buttonEl = document.createElement('button');
                 buttonEl.className = `step-button ${button.available ? 'available' : 'locked'} ${button.uses >= button.maxUses ? 'disabled' : ''}`;
                 
+                // Calculate remaining time if not available
+                let timerText = '';
+                if (!button.available && button.firstUnlockTime) {
+                    const now = new Date();
+                    const unlockTime = new Date(button.firstUnlockTime);
+                    const elapsed = Math.floor((now - unlockTime) / 1000);
+                    const remaining = UNLOCK_TIMES[button.value] - elapsed;
+                    
+                    if (remaining > 0) {
+                        timerText = `Unlocks in: ${formatTime(remaining)}`;
+                    } else {
+                        button.available = true;
+                    }
+                }
+                
                 buttonEl.innerHTML = `
                     <span class="step-value">${button.value}</span>
                     <span class="step-label">STEPS</span>
-                    ${button.available ? '' : `<span class="timer">Unlocks in: ${formatTime(button.unlock)}</span>`}
+                    ${!button.available && timerText ? `<span class="timer">${timerText}</span>` : ''}
                     ${button.uses >= button.maxUses ? '<span class="timer">MAX USED</span>' : ''}
                 `;
                 
@@ -936,9 +968,6 @@
             userData.totalJamp += jampEarned;
             userData.stamina -= 1;
             button.uses += 1;
-            
-            // Lock the button until next day
-            button.available = false;
             
             // Save data
             saveUserData();
