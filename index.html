@@ -348,6 +348,56 @@
             padding: 10px;
             margin-top: 20px;
         }
+
+        /* Модальное окно Feedback */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #001a33, #003366);
+            border: 1px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        .modal-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .modal-btn-primary {
+            background: #00ffff;
+            color: #001a33;
+        }
+        
+        .modal-btn-secondary {
+            background: transparent;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+        }
         
         /* Animations */
         @keyframes fadeIn {
@@ -433,8 +483,8 @@
                 <button class="action-button" id="profileBtn">
                     👤 PROFILE
                 </button>
-                <button class="action-button" id="supportBtn">
-                    🛠 SUPPORT
+                <button class="action-button" id="feedbackBtn">
+                    💬 FEEDBACK
                 </button>
                 <button class="action-button" id="infoBtn">
                     ℹ️ INFO
@@ -533,7 +583,7 @@
         const stepButtonsContainer = document.getElementById('stepButtons');
         const notification = document.getElementById('notification');
         const profileBtn = document.getElementById('profileBtn');
-        const supportBtn = document.getElementById('supportBtn');
+        const feedbackBtn = document.getElementById('feedbackBtn');
         const infoBtn = document.getElementById('infoBtn');
         const usernameDisplay = document.getElementById('usernameDisplay');
         const totalSteps = document.getElementById('totalSteps');
@@ -543,7 +593,8 @@
         const welcomeMessage = document.getElementById('welcomeMessage');
         
         // App Configuration
-        const SUPPORT_USERNAME = "JamMav";
+        const TELEGRAM_CHANNEL = "JamStepcrypto";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpAMGU2KkBhMv8j0mqP9lzHa_cUQm9FaasVgwlkNc-Q1qjeOZ2ERWFI-WrwnnfEnBRCw/exec";
         
         // Reward rates
         const REWARD_RATES = {
@@ -604,7 +655,8 @@
             lastUpdate: null,
             lastSupportContact: null,
             supportQuota: 1,
-            dailySessionStart: null
+            dailySessionStart: null,
+            lastLoggedDate: null  // Для контроля логирования раз в 5 дней
         };
 
         // Active timers for visual countdown
@@ -654,6 +706,9 @@
             // Check for new day and reset if needed
             checkNewDay();
             
+            // Log user activity (first entry or every 5 days)
+            logUserActivity('app_launch');
+            
             // Show welcome screen
             welcomeScreen.style.display = 'flex';
             mainApp.style.display = 'none';
@@ -702,8 +757,8 @@
                 showScreen('profileScreen');
             });
             
-            supportBtn.addEventListener('click', () => {
-                handleSupportClick();
+            feedbackBtn.addEventListener('click', () => {
+                showFeedbackModal();
             });
             
             infoBtn.addEventListener('click', () => {
@@ -726,6 +781,62 @@
             
             // Auto-save on user interaction
             document.addEventListener('click', autoSave);
+        }
+        
+        // Show Feedback modal
+        function showFeedbackModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>❗️ This is a test version</h3>
+                    <p>If you found bugs, have ideas or issues — write in our Telegram channel under any post. We'll definitely consider it!</p>
+                    <div class="modal-actions">
+                        <button class="modal-btn modal-btn-primary" onclick="window.open('https://t.me/${TELEGRAM_CHANNEL}', '_blank'); this.parentElement.parentElement.parentElement.remove()">OPEN CHANNEL</button>
+                        <button class="modal-btn modal-btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">CLOSE</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // Log user activity to Google Sheets
+        function logUserActivity(actionType) {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            // Для повторных пользователей: логируем только если прошло 5+ дней
+            if (userData.lastLoggedDate) {
+                const lastLogged = new Date(userData.lastLoggedDate);
+                const daysPassed = Math.floor((now - lastLogged) / (1000 * 60 * 60 * 24));
+                if (daysPassed < 5 && actionType !== 'steps_submit') return;
+            }
+            
+            // Подготовка данных
+            const data = {
+                userId: userData.userId || 'unknown',
+                username: userData.username,
+                steps: actionType === 'steps_submit' ? userData.stepsToday : 0,
+                jamp: userData.totalJamp.toFixed(4),
+                date: now.toISOString(),
+                action: actionType
+            };
+            
+            // Отправка в Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    userData.lastLoggedDate = today;
+                    saveUserData();
+                }
+            })
+            .catch(error => console.error('Error logging activity:', error));
         }
         
         // Load user data from localStorage
@@ -969,6 +1080,9 @@
             userData.stamina -= 1;
             button.uses += 1;
             
+            // Log steps submission
+            logUserActivity('steps_submit');
+            
             // Save data
             saveUserData();
             
@@ -977,29 +1091,6 @@
             
             // Update UI
             updateUI();
-        }
-        
-        // Handle support button click (1 request per week)
-        function handleSupportClick() {
-            const now = Date.now();
-            const weekMs = 7 * 24 * 60 * 60 * 1000; // 7 days
-            
-            // Reset quota if it's been more than a week
-            if (!userData.lastSupportContact || (now - userData.lastSupportContact) > weekMs) {
-                userData.supportQuota = 1;
-                userData.lastSupportContact = now;
-            }
-            
-            if (userData.supportQuota > 0) {
-                userData.supportQuota--;
-                userData.lastSupportContact = now;
-                tg.openTelegramLink(`https://t.me/${SUPPORT_USERNAME}`);
-                showNotification("Contacting support... You have " + userData.supportQuota + " requests left this week", "info");
-                saveUserData();
-            } else {
-                const nextDate = new Date(userData.lastSupportContact + weekMs);
-                showNotification(`Support request limit exceeded. Available from: ${nextDate.toLocaleDateString()}`, "warning");
-            }
         }
         
         // Show notification
