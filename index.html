@@ -348,8 +348,8 @@
             padding: 10px;
             margin-top: 20px;
         }
-
-        /* Модальное окно Feedback */
+        
+        /* New Feedback Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -361,42 +361,44 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
         }
         
         .modal-content {
             background: linear-gradient(135deg, #001a33, #003366);
-            border: 1px solid #00ffff;
+            border: 1px solid var(--accent);
             border-radius: 15px;
             padding: 20px;
-            max-width: 90%;
+            max-width: 80%;
             text-align: center;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            animation: slideDown 0.3s;
         }
         
         .modal-actions {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
             gap: 10px;
             justify-content: center;
         }
         
         .modal-btn {
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 8px 15px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: bold;
         }
         
         .modal-btn-primary {
-            background: #00ffff;
-            color: #001a33;
-        }
-        
-        .modal-btn-secondary {
-            background: transparent;
-            color: #00ffff;
-            border: 1px solid #00ffff;
+            background: var(--accent);
+            color: var(--primary);
         }
         
         /* Animations */
@@ -562,6 +564,19 @@
             </div>
         </div>
         
+        <!-- Feedback Modal -->
+        <div class="modal-overlay" id="feedbackModal">
+            <div class="modal-content">
+                <h3>❗️ This is a test version</h3>
+                <p>Found bugs/ideas? Message us in Telegram:</p>
+                <p>👉 @JamStepcrypto</p>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-primary" id="openChannelBtn">OPEN CHANNEL</button>
+                    <button class="modal-btn" id="closeModalBtn">CLOSE</button>
+                </div>
+            </div>
+        </div>
+        
         <!-- Notification -->
         <div class="notification" id="notification"></div>
     </div>
@@ -569,6 +584,9 @@
     <script>
         // Telegram Web App initialization
         const tg = window.Telegram.WebApp;
+        
+        // Google Sheets API URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9lL0Vd1NV4L4_EJ_PSsdBNlIJYTpmnH054HB7kWD_0u6LDADsSl6OX7aaH2J_pWoePA/exec';
         
         // DOM Elements
         const welcomeScreen = document.getElementById('welcomeScreen');
@@ -591,10 +609,9 @@
         const staminaCount = document.getElementById('staminaCount');
         const statsContainer = document.getElementById('statsContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
-        
-        // App Configuration
-        const TELEGRAM_CHANNEL = "JamStepcrypto";
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9lL0Vd1NV4L4_EJ_PSsdBNlIJYTpmnH054HB7kWD_0u6LDADsSl6OX7aaH2J_pWoePA/exec";
+        const feedbackModal = document.getElementById('feedbackModal');
+        const openChannelBtn = document.getElementById('openChannelBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
         
         // Reward rates
         const REWARD_RATES = {
@@ -604,7 +621,7 @@
             10000: 0.3    // 0.3 JAMP for 10000 steps
         };
         
-        // Unlock times in seconds (NEW TIMES)
+        // Unlock times in seconds
         const UNLOCK_TIMES = {
             500: 360,    // 6 minutes
             1000: 720,   // 12 minutes
@@ -655,8 +672,7 @@
             lastUpdate: null,
             lastSupportContact: null,
             supportQuota: 1,
-            dailySessionStart: null,
-            lastLoggedDate: null  // Для контроля логирования раз в 5 дней
+            dailySessionStart: null
         };
 
         // Active timers for visual countdown
@@ -683,6 +699,9 @@
                     This is a test version. You earn test JAMP for steps.<br>
                     New and first users who participate in the test will be rewarded after the main app launch!
                 `;
+                
+                // Log new user
+                logUserAction('new_user');
             } else {
                 welcomeText = `
                     👋 Welcome to JamStep!<br><br>
@@ -706,14 +725,12 @@
             // Check for new day and reset if needed
             checkNewDay();
             
-            // Log user activity (first entry or every 5 days)
-            logUserActivity('app_launch');
-            
             // Show welcome screen
             welcomeScreen.style.display = 'flex';
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
             infoScreen.style.display = 'none';
+            feedbackModal.classList.remove('active');
             
             // Add event listeners
             setupEventListeners();
@@ -758,7 +775,15 @@
             });
             
             feedbackBtn.addEventListener('click', () => {
-                showFeedbackModal();
+                feedbackModal.classList.add('active');
+            });
+            
+            openChannelBtn.addEventListener('click', () => {
+                tg.openTelegramLink('https://t.me/JamStepcrypto');
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                feedbackModal.classList.remove('active');
             });
             
             infoBtn.addEventListener('click', () => {
@@ -783,60 +808,39 @@
             document.addEventListener('click', autoSave);
         }
         
-        // Show Feedback modal
-        function showFeedbackModal() {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <h3>❗️ This is a test version</h3>
-                    <p>If you found bugs, have ideas or issues — write in our Telegram channel under any post. We'll definitely consider it!</p>
-                    <div class="modal-actions">
-                        <button class="modal-btn modal-btn-primary" onclick="window.open('https://t.me/${TELEGRAM_CHANNEL}', '_blank'); this.parentElement.parentElement.parentElement.remove()">OPEN CHANNEL</button>
-                        <button class="modal-btn modal-btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">CLOSE</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-        
-        // Log user activity to Google Sheets
-        function logUserActivity(actionType) {
-            const now = new Date();
-            const today = now.toISOString().split('T')[0];
+        // Log user actions to Google Sheets
+        async function logUserAction(actionType, steps = 0, jamp = 0) {
+            const user = Telegram.WebApp.initDataUnsafe?.user;
+            if (!user) return;
             
-            // Для повторных пользователей: логируем только если прошло 5+ дней
-            if (userData.lastLoggedDate) {
-                const lastLogged = new Date(userData.lastLoggedDate);
-                const daysPassed = Math.floor((now - lastLogged) / (1000 * 60 * 60 * 24));
-                if (daysPassed < 5 && actionType !== 'steps_submit') return;
+            // Check if we need to log (new user or every 5 days)
+            const lastLog = localStorage.getItem(`lastLog_${user.id}`);
+            const now = Date.now();
+            
+            if (lastLog && (now - lastLog) < 5 * 24 * 60 * 60 * 1000 && actionType !== 'steps') {
+                return;
             }
             
-            // Подготовка данных
-            const data = {
-                userId: userData.userId || 'unknown',
-                username: userData.username,
-                steps: actionType === 'steps_submit' ? userData.stepsToday : 0,
-                jamp: userData.totalJamp.toFixed(4),
-                date: now.toISOString(),
-                action: actionType
-            };
-            
-            // Отправка в Google Sheets
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        userId: user.id,
+                        username: user.username || `${user.first_name || 'User'}`,
+                        steps: steps,
+                        jamp: jamp,
+                        action: actionType,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
                 if (response.ok) {
-                    userData.lastLoggedDate = today;
-                    saveUserData();
+                    localStorage.setItem(`lastLog_${user.id}`, now);
+                    console.log('Data logged successfully:', actionType);
                 }
-            })
-            .catch(error => console.error('Error logging activity:', error));
+            } catch (e) {
+                console.error('Failed to log action:', e);
+            }
         }
         
         // Load user data from localStorage
@@ -942,6 +946,7 @@
             mainApp.style.display = 'none';
             profileScreen.style.display = 'none';
             infoScreen.style.display = 'none';
+            feedbackModal.classList.remove('active');
             
             if (screenName === 'welcomeScreen') {
                 welcomeScreen.style.display = 'flex';
@@ -1080,11 +1085,11 @@
             userData.stamina -= 1;
             button.uses += 1;
             
-            // Log steps submission
-            logUserActivity('steps_submit');
-            
             // Save data
             saveUserData();
+            
+            // Log steps action
+            logUserAction('steps', stepsToAdd, jampEarned);
             
             // Show success message
             showNotification(`✅ ${stepsToAdd} steps submitted! Earned ${jampEarned.toFixed(4)} JAMP`, "success");
